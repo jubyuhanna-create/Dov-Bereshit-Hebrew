@@ -1,0 +1,310 @@
+You are a Senior Full-Stack Engineer and UI/UX Architect.
+
+Build a production-ready Single Page Application (SPA) called **SawaParty** using only:
+
+* HTML5
+* Tailwind CSS (CDN)
+* Vanilla JavaScript (ES6+)
+* Supabase JavaScript Client v2 (CDN)
+
+Output a complete, fully functional **single `index.html` file** with all HTML, CSS, and JavaScript included.
+
+---
+
+# Supabase Configuration
+
+At the top of the JavaScript section create clearly labeled placeholders:
+
+```javascript
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+```
+
+Load Supabase via:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+```
+
+---
+
+# Database Schema
+
+### profiles
+
+| Column    | Type                         |
+| --------- | ---------------------------- |
+| id        | UUID (matches auth.users.id) |
+| name      | text                         |
+| type      | text ('dj' or 'venue')       |
+| phone     | text                         |
+| instagram | text                         |
+
+### availability
+
+| Column    | Type                           |
+| --------- | ------------------------------ |
+| id        | integer                        |
+| vendor_id | UUID                           |
+| date      | date                           |
+| status    | text ('available' or 'booked') |
+
+---
+
+# Design Requirements
+
+Create a modern nightlife-inspired UI.
+
+Theme:
+
+* Background: slate-900
+* Glassmorphism cards
+* Indigo / Purple neon accents
+* Smooth hover animations
+* Mobile-first responsive design
+* Modern dashboard appearance
+* Elegant typography
+* Loading states
+* Toast notifications
+* Empty-state illustrations/messages
+
+---
+
+# Application Sections
+
+## 1. Navigation
+
+Responsive navbar containing:
+
+* Logo: SawaParty
+* Search
+* Vendor Portal
+* Login Status Indicator
+
+Sticky top navigation.
+
+---
+
+## 2. Public Search Area (No Login Required)
+
+### Search Mode Toggle
+
+Provide two search modes:
+
+#### Search by Date
+
+User selects a date.
+
+Application must:
+
+1. Query availability table
+2. Find vendors marked "available" on selected date
+3. Join with profiles table
+4. Display results
+
+Result cards must include:
+
+* Vendor Name
+* Type Badge
+* Phone Number
+* WhatsApp Button
+* Instagram Button
+* Availability Status
+* Contact CTA
+
+WhatsApp link format:
+
+```javascript
+https://wa.me/PHONE_NUMBER
+```
+
+Instagram link format:
+
+```javascript
+https://instagram.com/USERNAME
+```
+
+---
+
+#### Search by Vendor
+
+User selects a vendor from dropdown.
+
+Application must:
+
+1. Fetch selected vendor's available dates
+2. Find all other vendors available on those same dates
+3. Group results by date
+4. Display matching DJs and Venues
+
+Show:
+
+* Date
+* Vendor Name
+* Vendor Type
+* Contact Information
+
+---
+
+## 3. Authentication
+
+Create a clean login card.
+
+Use:
+
+```javascript
+supabase.auth.signInWithPassword()
+```
+
+Features:
+
+* Email
+* Password
+* Show/Hide Password
+* Validation
+* Error Handling
+* Loading Spinner
+
+Display friendly messages for:
+
+* Wrong password
+* Invalid email
+* Network issues
+
+---
+
+## 4. Vendor Dashboard
+
+Visible only when authenticated.
+
+---
+
+### Profile Management
+
+Load current vendor profile automatically.
+
+Editable fields:
+
+* Name
+* Phone
+* Instagram
+
+Save updates using Supabase update queries.
+
+Show success/error toast notifications.
+
+---
+
+### Calendar Availability Manager
+
+Create a professional monthly calendar.
+
+Requirements:
+
+* Current month view
+* Previous month button
+* Next month button
+* Today highlight
+* Mobile responsive
+
+Each day cell must support:
+
+### Click Cycle
+
+No Record
+↓
+Available (Green)
+↓
+Booked (Red)
+↓
+Remove Record
+
+Operations must directly update the availability table:
+
+* INSERT
+* UPDATE
+* DELETE
+
+Realtime UI updates without page refresh.
+
+Legend:
+
+🟢 Available
+
+🔴 Booked
+
+⚪ No Record
+
+---
+
+### Availability Data Logic
+
+On dashboard load:
+
+1. Fetch all logged-in vendor availability records.
+2. Render calendar states.
+3. Update calendar instantly after changes.
+
+---
+
+### Logout
+
+Use:
+
+```javascript
+supabase.auth.signOut()
+```
+
+Return user to public search screen.
+
+---
+
+# User Experience
+
+Implement:
+
+* Loading spinners
+* Skeleton loaders
+* Empty states
+* Confirmation dialogs
+* Success notifications
+* Error notifications
+
+---
+
+# Security & Quality
+
+* Use async/await
+* Modular functions
+* Clean code structure
+* Prevent duplicate requests
+* Sanitize user-generated content
+* Handle Supabase errors gracefully
+* Maintain session persistence
+* Auto-check auth state on page load
+
+---
+
+# Responsiveness
+
+Must work perfectly on:
+
+* Mobile
+* Tablet
+* Desktop
+
+Use responsive Tailwind utilities throughout.
+
+---
+
+# Deliverable
+
+Return only the final complete `index.html` source code.
+
+No explanations.
+
+No markdown.
+
+No code fences.
+
+Only production-ready code.
