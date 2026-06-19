@@ -503,13 +503,14 @@ export default function App() {
   async function saveOnboarding() {
     if (!user || !obType || !obName.trim()) { addToast(t.onboardingFillAll, "error"); return; }
     setObSaving(true);
-    // Try update first (profile row should exist from trigger)
-    const { error: upErr } = await supabase.from("profiles").update({
-      name: obName.trim(),
-      type: obType,
-    }).eq("id", user.id);
-    // If update failed (row might not exist), try insert
-    if (upErr) {
+    // Try update — use .select() to detect whether any row was actually updated
+    const { data: updated, error: upErr } = await supabase
+      .from("profiles")
+      .update({ name: obName.trim(), type: obType })
+      .eq("id", user.id)
+      .select();
+    // If update errored OR updated 0 rows → try insert
+    if (upErr || !updated?.length) {
       const { error: insErr } = await supabase.from("profiles").insert({
         id: user.id,
         name: obName.trim(),
