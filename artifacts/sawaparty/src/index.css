@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Heebo:wght@400;600;700;900&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -28,23 +29,23 @@
 }
 
 :root {
-  --background: 222 47% 6%;
-  --foreground: 220 20% 92%;
-  --card: 222 40% 9%;
-  --card-foreground: 220 20% 92%;
-  --primary: 255 90% 66%;
-  --primary-foreground: 255 100% 98%;
-  --secondary: 222 35% 14%;
-  --secondary-foreground: 220 20% 80%;
-  --muted: 222 35% 12%;
-  --muted-foreground: 220 15% 55%;
-  --accent: 285 80% 60%;
-  --accent-foreground: 285 100% 98%;
-  --destructive: 0 80% 55%;
-  --border: 222 30% 16%;
-  --input: 222 30% 14%;
-  --ring: 255 90% 66%;
-  --app-font-sans: 'Inter', system-ui, sans-serif;
+  --background: 138 50% 97%;
+  --foreground: 140 45% 8%;
+  --card: 0 0% 100%;
+  --card-foreground: 140 45% 8%;
+  --primary: 142 72% 35%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 138 30% 93%;
+  --secondary-foreground: 140 35% 18%;
+  --muted: 138 20% 94%;
+  --muted-foreground: 140 12% 44%;
+  --accent: 160 65% 38%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 48%;
+  --border: 138 28% 86%;
+  --input: 0 0% 100%;
+  --ring: 142 72% 38%;
+  --app-font-sans: 'Cairo', 'Heebo', system-ui, sans-serif;
   --radius: 0.75rem;
 }
 
@@ -58,57 +59,61 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--app-font-sans);
+    font-weight: 600;
     min-height: 100vh;
     background-image:
-      radial-gradient(ellipse at 20% 0%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 0%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 100%, rgba(168, 85, 247, 0.04) 0%, transparent 60%);
+      radial-gradient(ellipse at 15% 0%, rgba(22, 163, 74, 0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 5%, rgba(5, 150, 105, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
   }
 }
 
 @layer utilities {
   .glass {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(22, 163, 74, 0.13);
+    box-shadow: 0 2px 12px rgba(22, 163, 74, 0.06);
   }
 
   .glass-strong {
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(22, 163, 74, 0.18);
+    box-shadow: 0 4px 24px rgba(22, 163, 74, 0.08);
   }
 
   .neon-text-indigo {
-    color: #818cf8;
-    text-shadow: 0 0 20px rgba(129, 140, 248, 0.6), 0 0 40px rgba(129, 140, 248, 0.3);
+    color: #15803d;
+    text-shadow: 0 0 24px rgba(22, 163, 74, 0.25), 0 0 48px rgba(22, 163, 74, 0.12);
   }
 
   .neon-text-purple {
-    color: #c084fc;
-    text-shadow: 0 0 20px rgba(192, 132, 252, 0.6), 0 0 40px rgba(192, 132, 252, 0.3);
+    color: #047857;
+    text-shadow: 0 0 20px rgba(5, 150, 105, 0.25), 0 0 40px rgba(5, 150, 105, 0.12);
   }
 
   .neon-border {
-    border: 1px solid rgba(129, 140, 248, 0.4);
-    box-shadow: 0 0 12px rgba(129, 140, 248, 0.15), inset 0 0 12px rgba(129, 140, 248, 0.05);
+    border: 1.5px solid rgba(22, 163, 74, 0.38);
+    box-shadow: 0 0 14px rgba(22, 163, 74, 0.1), inset 0 0 10px rgba(22, 163, 74, 0.04);
   }
 
   .neon-glow {
-    box-shadow: 0 0 20px rgba(129, 140, 248, 0.25), 0 0 40px rgba(129, 140, 248, 0.1);
+    box-shadow: 0 4px 24px rgba(22, 163, 74, 0.18), 0 8px 40px rgba(22, 163, 74, 0.08);
   }
 
   .btn-neon {
-    @apply relative overflow-hidden font-semibold transition-all duration-300;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9));
-    border: 1px solid rgba(129, 140, 248, 0.5);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), 0 4px 15px rgba(0, 0, 0, 0.3);
+    @apply relative overflow-hidden font-bold transition-all duration-300;
+    background: linear-gradient(135deg, #16a34a, #059669);
+    border: 1px solid rgba(22, 163, 74, 0.45);
+    box-shadow: 0 2px 18px rgba(22, 163, 74, 0.22), 0 4px 12px rgba(22, 163, 74, 0.12);
   }
 
   .btn-neon:hover {
-    box-shadow: 0 0 30px rgba(99, 102, 241, 0.5), 0 4px 20px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #15803d, #047857);
+    box-shadow: 0 4px 28px rgba(22, 163, 74, 0.32), 0 6px 18px rgba(22, 163, 74, 0.18);
     transform: translateY(-1px);
   }
 
@@ -117,43 +122,44 @@
   }
 
   .day-available {
-    background: rgba(34, 197, 94, 0.15);
-    border: 1px solid rgba(34, 197, 94, 0.4);
-    color: #4ade80;
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
+    background: rgba(22, 163, 74, 0.12);
+    border: 1.5px solid rgba(22, 163, 74, 0.45);
+    color: #15803d;
+    font-weight: 700;
+    box-shadow: 0 0 8px rgba(22, 163, 74, 0.15);
   }
 
   .day-available:hover {
-    background: rgba(34, 197, 94, 0.25);
-    box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+    background: rgba(22, 163, 74, 0.22);
+    box-shadow: 0 0 14px rgba(22, 163, 74, 0.25);
   }
 
   .day-booked {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    color: #f87171;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.1);
+    border: 1.5px solid rgba(239, 68, 68, 0.38);
+    color: #dc2626;
+    font-weight: 700;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.12);
   }
 
   .day-booked:hover {
-    background: rgba(239, 68, 68, 0.25);
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.18);
   }
 
   .day-empty {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.07);
     color: hsl(var(--muted-foreground));
   }
 
   .day-empty:hover {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(129, 140, 248, 0.3);
+    background: rgba(22, 163, 74, 0.07);
+    border-color: rgba(22, 163, 74, 0.28);
   }
 
   .day-today {
-    ring: 2px solid rgba(129, 140, 248, 0.8);
-    outline: 2px solid rgba(129, 140, 248, 0.6);
+    outline: 2px solid rgba(22, 163, 74, 0.65);
+    outline-offset: 1px;
   }
 
   .scrollbar-hidden::-webkit-scrollbar {
@@ -162,36 +168,41 @@
 
   .input-dark {
     @apply w-full rounded-lg px-4 py-3 text-sm transition-all duration-200;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1.5px solid rgba(22, 163, 74, 0.18);
     color: hsl(var(--foreground));
+    font-family: var(--app-font-sans);
+    font-weight: 600;
   }
 
   .input-dark:focus {
     outline: none;
-    border-color: rgba(129, 140, 248, 0.5);
-    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1), 0 0 12px rgba(129, 140, 248, 0.1);
+    border-color: rgba(22, 163, 74, 0.5);
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1), 0 0 14px rgba(22, 163, 74, 0.08);
   }
 
   .input-dark::placeholder {
     color: hsl(var(--muted-foreground));
+    font-weight: 500;
   }
 
   .badge-dj {
-    background: rgba(99, 102, 241, 0.2);
-    border: 1px solid rgba(99, 102, 241, 0.4);
-    color: #a5b4fc;
+    background: rgba(22, 163, 74, 0.1);
+    border: 1px solid rgba(22, 163, 74, 0.28);
+    color: #15803d;
+    font-weight: 700;
   }
 
   .badge-venue {
-    background: rgba(168, 85, 247, 0.2);
-    border: 1px solid rgba(168, 85, 247, 0.4);
-    color: #d8b4fe;
+    background: rgba(5, 150, 105, 0.1);
+    border: 1px solid rgba(5, 150, 105, 0.28);
+    color: #047857;
+    font-weight: 700;
   }
 
   @keyframes pulse-glow {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+    50% { opacity: 0.55; }
   }
 
   .animate-pulse-glow {
@@ -199,12 +210,12 @@
   }
 
   @keyframes slide-up {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(14px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   .animate-slide-up {
-    animation: slide-up 0.3s ease-out forwards;
+    animation: slide-up 0.28s ease-out forwards;
   }
 
   @keyframes spin-slow {
@@ -215,10 +226,10 @@
   .spinner {
     width: 20px;
     height: 20px;
-    border: 2px solid rgba(129, 140, 248, 0.3);
-    border-top-color: rgba(129, 140, 248, 1);
+    border: 2.5px solid rgba(22, 163, 74, 0.2);
+    border-top-color: #16a34a;
     border-radius: 50%;
-    animation: spin-slow 0.8s linear infinite;
+    animation: spin-slow 0.75s linear infinite;
     display: inline-block;
   }
 }
