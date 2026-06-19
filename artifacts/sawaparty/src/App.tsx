@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 
 // ─── הגדרות Supabase ── إعدادات Supabase ───────────────────────────────────
@@ -244,6 +244,80 @@ function VendorCard({ vendor }: { vendor: SearchResult }) {
   );
 }
 
+// ─── بطاقة بائع كبيرة ── כרטיס ספק גדול ──────────────────────────────────
+function VendorCardLarge({ vendor }: { vendor: SearchResult }) {
+  const waLink = `https://wa.me/${vendor.phone?.replace(/\D/g, "")}`;
+  const igLink = `https://instagram.com/${vendor.instagram?.replace("@", "")}`;
+
+  return (
+    <div className="glass-strong rounded-2xl p-6 animate-slide-up hover:neon-glow transition-all duration-300 space-y-4">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 ${
+            vendor.type === "dj" ? "bg-indigo-500/15 border border-indigo-500/30" : "bg-purple-500/15 border border-purple-500/30"
+          }`}>
+            {vendor.type === "dj" ? "🎧" : "🏛"}
+          </div>
+          <div>
+            <h3 className="font-black text-xl text-foreground leading-tight">{vendor.name}</h3>
+            <span className={`inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-semibold ${
+              vendor.type === "dj" ? "badge-dj" : "badge-venue"
+            }`}>
+              {vendor.type === "dj" ? "ديجي / DJ" : "مكان / אולם"}
+            </span>
+          </div>
+        </div>
+        <div className="bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 flex-shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse-glow inline-block" />
+          متاح / זמין
+        </div>
+      </div>
+
+      {vendor.phone && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>📞</span>
+          <span dir="ltr">{vendor.phone}</span>
+        </div>
+      )}
+      {vendor.instagram && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>📸</span>
+          <span dir="ltr">@{vendor.instagram?.replace("@", "")}</span>
+        </div>
+      )}
+
+      <div className="flex gap-3 pt-1">
+        {vendor.phone && (
+          <a
+            href={waLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 hover:shadow-lg"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.98 0C5.363 0 0 5.363 0 11.98c0 2.107.553 4.082 1.52 5.8L0 24l6.387-1.494A11.932 11.932 0 0011.98 23.96C18.596 23.96 24 18.596 24 11.98 24 5.363 18.596 0 11.98 0zm0 21.927a9.913 9.913 0 01-5.047-1.377l-.362-.215-3.792.886.932-3.699-.236-.38A9.888 9.888 0 012.047 11.98c0-5.485 4.463-9.933 9.933-9.933s9.933 4.448 9.933 9.933-4.448 9.947-9.933 9.947z"/>
+            </svg>
+            واتساپ / וואטסאפ
+          </a>
+        )}
+        {vendor.instagram && (
+          <a
+            href={igLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 bg-purple-500/15 border border-purple-500/30 text-purple-400 hover:bg-purple-500/25 hover:shadow-lg"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            إنستغرام / אינסטגרם
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── التطبيق الرئيسي ── האפליקציה הראשית ──────────────────────────────────
 export default function App() {
   const [view, setView] = useState<View>("search");
@@ -255,10 +329,12 @@ export default function App() {
   const [searchMode, setSearchMode] = useState<SearchMode>("date");
   const [searchDate, setSearchDate] = useState("");
   const [vendors, setVendors] = useState<Profile[]>([]);
+  const [vendorQuery, setVendorQuery] = useState("");
   const [selectedVendorId, setSelectedVendorId] = useState("");
   const [dateResults, setDateResults] = useState<SearchResult[]>([]);
   const [vendorResults, setVendorResults] = useState<GroupedResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   // Login state
   const [email, setEmail] = useState("");
@@ -369,19 +445,21 @@ export default function App() {
         status: "available" as const,
       }));
       setDateResults(results);
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
     }
     setSearchLoading(false);
   }
 
   // ── البحث بالبائع ────────────────────────────────────────────────────────
-  async function searchByVendor() {
-    if (!selectedVendorId) return addToast("اختر بائعاً / בחר ספק", "error");
+  async function searchByVendor(vendorId?: string) {
+    const id = vendorId ?? selectedVendorId;
+    if (!id) return addToast("اختر بائعاً / בחר ספק", "error");
     setSearchLoading(true);
     setVendorResults([]);
     const { data: myDates, error } = await supabase
       .from("availability")
       .select("date")
-      .eq("vendor_id", selectedVendorId)
+      .eq("vendor_id", id)
       .eq("status", "available");
     if (error || !myDates?.length) { setSearchLoading(false); return; }
     const dates = myDates.map((d: { date: string }) => d.date);
@@ -390,7 +468,7 @@ export default function App() {
       .select("vendor_id, date, status")
       .in("date", dates)
       .eq("status", "available")
-      .neq("vendor_id", selectedVendorId);
+      .neq("vendor_id", id);
     if (!otherAvails?.length) { setSearchLoading(false); return; }
     const uniqueIds = [...new Set((otherAvails as { vendor_id: string; date: string; status: string }[]).map((a) => a.vendor_id))];
     const { data: profiles } = await supabase.from("profiles").select("*").in("id", uniqueIds);
@@ -408,6 +486,7 @@ export default function App() {
       .map(([date, vendors]) => ({ date, vendors }));
     setVendorResults(grouped);
     setSearchLoading(false);
+    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
   }
 
   // ── تسجيل الدخول ─────────────────────────────────────────────────────────
@@ -688,34 +767,82 @@ export default function App() {
             )}
 
             {/* البحث بالبائع */}
-            {searchMode === "vendor" && (
-              <div className="glass-strong rounded-2xl p-6 max-w-lg mx-auto space-y-4">
-                <h2 className="font-bold text-lg text-foreground">
-                  ابحث بالبائع / חפש לפי ספק
-                </h2>
-                <div className="space-y-3">
-                  <select
-                    value={selectedVendorId}
-                    onChange={(e) => setSelectedVendorId(e.target.value)}
-                    className="input-dark appearance-none"
-                  >
-                    <option value="">اختر بائعاً / בחר ספק...</option>
-                    {vendors.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.name} — {v.type === "dj" ? "ديجي / DJ" : "مكان / אולם"}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={searchByVendor}
-                    disabled={searchLoading || !selectedVendorId}
-                    className="btn-neon w-full py-3 rounded-xl text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {searchLoading ? <span className="spinner mx-auto" /> : "🔍 ابحث الآن / חפש"}
-                  </button>
+            {searchMode === "vendor" && (() => {
+              const filtered = vendors.filter((v) =>
+                !vendorQuery || v.name?.toLowerCase().includes(vendorQuery.toLowerCase())
+              );
+              const selected = vendors.find((v) => v.id === selectedVendorId);
+              return (
+                <div className="max-w-2xl mx-auto space-y-4">
+                  <div className="glass-strong rounded-2xl p-6 space-y-4">
+                    <h2 className="font-bold text-lg text-foreground">
+                      ابحث بالبائع / חפש לפי ספק
+                    </h2>
+
+                    {/* حقل البحث النصي */}
+                    <div className="relative">
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-base pointer-events-none">🔍</span>
+                      <input
+                        type="text"
+                        value={vendorQuery}
+                        onChange={(e) => { setVendorQuery(e.target.value); setSelectedVendorId(""); setVendorResults([]); }}
+                        placeholder="اكتب اسم البائع / חפש ספק..."
+                        className="input-dark pr-12"
+                      />
+                    </div>
+
+                    {/* قائمة البائعين */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto scrollbar-hidden">
+                      {filtered.length === 0 && (
+                        <p className="col-span-2 text-center py-4 text-muted-foreground text-sm">
+                          لا يوجد نتائج / אין תוצאות
+                        </p>
+                      )}
+                      {filtered.map((v) => {
+                        const isSelected = selectedVendorId === v.id;
+                        return (
+                          <button
+                            key={v.id}
+                            onClick={() => {
+                              setSelectedVendorId(v.id);
+                              setVendorResults([]);
+                              searchByVendor(v.id);
+                            }}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-right transition-all duration-200 ${
+                              isSelected
+                                ? "neon-border bg-indigo-500/15 text-foreground"
+                                : "glass text-muted-foreground hover:text-foreground hover:bg-white/5"
+                            }`}
+                          >
+                            <span className="text-xl flex-shrink-0">
+                              {v.type === "dj" ? "🎧" : "🏛"}
+                            </span>
+                            <div className="flex-1 min-w-0 text-right">
+                              <div className="font-semibold truncate">{v.name}</div>
+                              <div className={`text-xs mt-0.5 ${isSelected ? "text-indigo-300" : "text-muted-foreground"}`}>
+                                {v.type === "dj" ? "ديجي / DJ" : "مكان / אולם"}
+                              </div>
+                            </div>
+                            {isSelected && <span className="text-indigo-400 text-lg flex-shrink-0">✓</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {selected && (
+                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
+                        <span className="text-xl">{selected.type === "dj" ? "🎧" : "🏛"}</span>
+                        <div className="flex-1">
+                          <span className="text-sm text-muted-foreground">تم اختياره / נבחר: </span>
+                          <span className="font-bold text-indigo-300">{selected.name}</span>
+                        </div>
+                        {searchLoading && <span className="spinner flex-shrink-0" />}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* نتائج البحث بالتاريخ */}
             {searchMode === "date" && (
@@ -750,31 +877,63 @@ export default function App() {
             )}
 
             {/* نتائج البحث بالبائع */}
-            {searchMode === "vendor" && !searchLoading && vendorResults.length > 0 && (
-              <div className="space-y-6">
-                <h3 className="font-bold text-lg text-foreground">
-                  البائعون المتاحون / ספקים זמינים
-                </h3>
-                {vendorResults.map((group) => (
-                  <div key={group.date} className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="glass px-4 py-1.5 rounded-full">
-                        <span className="text-sm font-semibold neon-text-indigo">{group.date}</span>
-                      </div>
-                      <div className="flex-1 h-px bg-border/50" />
-                    </div>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {group.vendors.map((v) => <VendorCard key={`${group.date}-${v.id}`} vendor={v} />)}
+            {searchMode === "vendor" && (searchLoading || vendorResults.length > 0 || selectedVendorId) && (
+              <div ref={resultsRef} className="scroll-mt-24 space-y-6">
+                {searchLoading && (
+                  <div className="flex justify-center py-16">
+                    <div className="text-center space-y-3">
+                      <span className="spinner" style={{ width: 40, height: 40 }} />
+                      <p className="text-muted-foreground text-sm">جارٍ البحث... / מחפש...</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                )}
 
-            {searchMode === "vendor" && !searchLoading && selectedVendorId && vendorResults.length === 0 && (
-              <div className="text-center py-16 space-y-3">
-                <div className="text-6xl animate-pulse-glow">🔎</div>
-                <p className="text-muted-foreground">لا يوجد تطابق / אין התאמות</p>
+                {!searchLoading && vendorResults.length > 0 && (
+                  <>
+                    <div className="flex items-center gap-4">
+                      <h3 className="font-black text-2xl text-foreground">
+                        البائعون المتاحون
+                      </h3>
+                      <span className="neon-text-indigo font-black text-2xl">
+                        / ספקים זמינים
+                      </span>
+                      <div className="flex-1 h-px bg-border/50" />
+                      <div className="glass px-4 py-1.5 rounded-full">
+                        <span className="text-sm font-bold neon-text-purple">
+                          {vendorResults.reduce((s, g) => s + g.vendors.length, 0)} نتيجة / תוצאות
+                        </span>
+                      </div>
+                    </div>
+
+                    {vendorResults.map((group) => (
+                      <div key={group.date} className="space-y-4">
+                        {/* تاريخ كبير */}
+                        <div className="flex items-center gap-4">
+                          <div className="neon-border bg-indigo-500/10 px-6 py-2 rounded-2xl">
+                            <span className="text-base font-black neon-text-indigo">📅 {group.date}</span>
+                          </div>
+                          <div className="flex-1 h-px bg-border/30" />
+                          <span className="text-xs text-muted-foreground">{group.vendors.length} بائع</span>
+                        </div>
+
+                        {/* بطاقات كبيرة */}
+                        <div className="grid sm:grid-cols-2 gap-5">
+                          {group.vendors.map((v) => (
+                            <VendorCardLarge key={`${group.date}-${v.id}`} vendor={v} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {!searchLoading && selectedVendorId && vendorResults.length === 0 && (
+                  <div className="text-center py-16 space-y-3">
+                    <div className="text-6xl animate-pulse-glow">🔎</div>
+                    <p className="text-muted-foreground">لا يوجد تطابق / אין התאמות</p>
+                    <p className="text-xs text-muted-foreground/50">جرب بائعاً آخر / נסה ספק אחר</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
