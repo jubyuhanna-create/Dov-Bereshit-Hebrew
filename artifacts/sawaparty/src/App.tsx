@@ -503,19 +503,29 @@ export default function App() {
   async function saveOnboarding() {
     if (!user || !obType || !obName.trim()) { addToast(t.onboardingFillAll, "error"); return; }
     setObSaving(true);
-    const { error } = await supabase.from("profiles").upsert({
-      id: user.id,
+    // Try update first (profile row should exist from trigger)
+    const { error: upErr } = await supabase.from("profiles").update({
       name: obName.trim(),
       type: obType,
-      phone: "",
-      instagram: "",
-      avatar_url: null,
-    });
+    }).eq("id", user.id);
+    // If update failed (row might not exist), try insert
+    if (upErr) {
+      const { error: insErr } = await supabase.from("profiles").insert({
+        id: user.id,
+        name: obName.trim(),
+        type: obType,
+        phone: "",
+        instagram: "",
+      });
+      if (insErr) {
+        addToast(`${t.savingError}: ${insErr.message}`, "error");
+        setObSaving(false);
+        return;
+      }
+    }
     setObSaving(false);
-    if (error) { addToast(t.savingError, "error"); return; }
     addToast(t.welcomeBack, "success");
     await loadProfile(user.id, true);
-    // refresh vendor list
     supabase.from("profiles").select("*").not("name", "is", null).then(({ data }) => { if (data) setVendors(data as Profile[]); });
   }
 
@@ -587,13 +597,11 @@ export default function App() {
   async function saveProfile() {
     if (!user) return;
     setProfileSaving(true);
-    const { error } = await supabase.from("profiles").upsert({
-      id: user.id,
+    const { error } = await supabase.from("profiles").update({
       name: editName,
       phone: editPhone,
       instagram: editInstagram,
-      type: profile?.type ?? "dj",
-    });
+    }).eq("id", user.id);
     setProfileSaving(false);
     if (error) addToast(t.savingError, "error");
     else { addToast(t.saved, "success"); loadProfile(user.id); }
