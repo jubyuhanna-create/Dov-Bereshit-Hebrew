@@ -105,6 +105,12 @@ const TR = {
     photoUploaded: "تم رفع الصورة ✓",
     photoError: "خطأ في رفع الصورة",
     changePhoto: "تغيير الصورة",
+    // DJ Profile page
+    djPageTitle: "صفحة الديجي",
+    djPageVenues: "القاعات المتاحة في نفس التاريخ",
+    backToResults: "← رجوع للنتائج",
+    noVenuesForDate: "لا توجد قاعات متاحة في هذا التاريخ",
+    tapForDetails: "اضغط للتفاصيل",
   },
   he: {
     appName: "Hafla",
@@ -194,6 +200,12 @@ const TR = {
     photoUploaded: "התמונה הועלתה ✓",
     photoError: "שגיאה בהעלאה",
     changePhoto: "שנה תמונה",
+    // DJ Profile page
+    djPageTitle: "דף דיג׳יי",
+    djPageVenues: "אולמות זמינים באותו תאריך",
+    backToResults: "← חזרה לתוצאות",
+    noVenuesForDate: "אין אולמות זמינים בתאריך זה",
+    tapForDetails: "לחץ לפרטים",
   },
 } as const;
 
@@ -219,7 +231,7 @@ interface GroupedResult {
   date: string;
   vendors: SearchResult[];
 }
-type View = "search" | "login" | "dashboard" | "onboarding";
+type View = "search" | "login" | "dashboard" | "onboarding" | "djProfile";
 type SearchMode = "date" | "vendor";
 
 // ─── Toast ──────────────────────────────────────────────────────────────────
@@ -322,12 +334,12 @@ function Calendar({ availabilityMap, onDayClick, loading, lang }: {
 }
 
 // ─── VendorCard (small) ───────────────────────────────────────────────────────
-function VendorCard({ vendor, lang }: { vendor: SearchResult; lang: Lang }) {
+function VendorCard({ vendor, lang, onClick }: { vendor: SearchResult; lang: Lang; onClick?: () => void }) {
   const t = TR[lang];
   const waLink = `https://wa.me/${vendor.phone?.replace(/\D/g, "")}`;
   const igLink = `https://instagram.com/${vendor.instagram?.replace("@", "")}`;
   return (
-    <div className="glass-strong rounded-2xl p-5 animate-slide-up hover:neon-glow transition-all duration-300">
+    <div onClick={onClick} className={`glass-strong rounded-2xl p-5 animate-slide-up transition-all duration-300 ${onClick ? "cursor-pointer hover:ring-2 hover:ring-green-400 hover:shadow-lg" : "hover:neon-glow"}`}>
       <div className="flex items-center gap-3 mb-3">
         <Avatar url={vendor.avatar_url} name={vendor.name} type={vendor.type} size="sm" />
         <div className="flex-1 min-w-0">
@@ -354,6 +366,11 @@ function VendorCard({ vendor, lang }: { vendor: SearchResult; lang: Lang }) {
           </a>
         )}
       </div>
+      {onClick && (
+        <div className="mt-2 pt-2 border-t border-border/40 text-center text-xs text-emerald-600 font-bold">
+          {t.tapForDetails} ←
+        </div>
+      )}
     </div>
   );
 }
@@ -445,6 +462,11 @@ export default function App() {
   const [obType, setObType] = useState<"dj" | "venue" | "">("");
   const [obName, setObName] = useState("");
   const [obSaving, setObSaving] = useState(false);
+
+  // DJ Profile page state
+  const [selectedDj, setSelectedDj] = useState<SearchResult | null>(null);
+  const [djVenues, setDjVenues] = useState<Profile[]>([]);
+  const [djVenuesLoading, setDjVenuesLoading] = useState(false);
 
   const addToast = useCallback((message: string, type: ToastItem["type"] = "info") => {
     const id = ++toastId;
@@ -574,6 +596,28 @@ export default function App() {
     setVendorResults(grouped);
     setSearchLoading(false);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+  }
+
+  // ─── DJ Profile page ──────────────────────────────────────────────────────
+  async function openDjProfile(dj: SearchResult) {
+    setSelectedDj(dj);
+    setView("djProfile");
+    setDjVenues([]);
+    if (!searchDate) return;
+    setDjVenuesLoading(true);
+    const { data: avails } = await supabase
+      .from("availability")
+      .select("vendor_id")
+      .eq("date", searchDate)
+      .eq("status", "available");
+    if (avails?.length) {
+      const ids = (avails as { vendor_id: string }[]).map((a) => a.vendor_id).filter((id) => id !== dj.id);
+      if (ids.length) {
+        const { data: profiles } = await supabase.from("profiles").select("*").in("id", ids).eq("type", "venue");
+        if (profiles) setDjVenues(profiles as Profile[]);
+      }
+    }
+    setDjVenuesLoading(false);
   }
 
   // ─── Auth actions ─────────────────────────────────────────────────────────
@@ -842,7 +886,14 @@ export default function App() {
                   <div>
                     <h3 className="font-bold text-lg mb-4">{t.results} — <span className="neon-text-indigo">{dateResults.length}</span></h3>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {dateResults.map((v) => <VendorCard key={v.id} vendor={v} lang={lang} />)}
+                      {dateResults.map((v) => (
+                        <VendorCard
+                          key={v.id}
+                          vendor={v}
+                          lang={lang}
+                          onClick={v.type === "dj" ? () => openDjProfile(v) : undefined}
+                        />
+                      ))}
                     </div>
                   </div>
                 )}
@@ -879,6 +930,150 @@ export default function App() {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ═══ DJ Profile Page ═══ */}
+        {view === "djProfile" && selectedDj && (
+          <div className="space-y-8 animate-slide-up" dir="rtl">
+            {/* Back button */}
+            <button
+              onClick={() => setView("search")}
+              className="flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-900 transition-colors glass px-4 py-2 rounded-xl border border-emerald-200 hover:border-emerald-400"
+            >
+              {t.backToResults}
+            </button>
+
+            {/* DJ Hero card */}
+            <div className="glass-strong rounded-3xl p-8 neon-border space-y-6">
+              <div className="flex items-center gap-5">
+                <Avatar url={selectedDj.avatar_url} name={selectedDj.name} type="dj" size="lg" />
+                <div className="flex-1 min-w-0">
+                  <span className="inline-block mb-2 px-3 py-0.5 rounded-full text-xs font-black badge-dj">{t.dj}</span>
+                  <h1 className="text-3xl font-black text-foreground leading-tight">{selectedDj.name}</h1>
+                  {searchDate && (
+                    <div className="mt-2 flex items-center gap-1.5 text-sm text-emerald-700 font-semibold">
+                      <span>📅</span><span dir="ltr">{searchDate}</span>
+                      <span className="mr-1 inline-flex items-center gap-1 bg-green-100 border border-green-300 px-2 py-0.5 rounded-full text-xs font-bold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse-glow inline-block" />
+                        {t.available.replace("✓ ", "")}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Contact info */}
+              <div className="space-y-3">
+                {selectedDj.phone && (
+                  <div className="flex items-center gap-3 text-sm">
+                    <span className="text-lg">📞</span>
+                    <span dir="ltr" className="text-foreground font-semibold">{selectedDj.phone}</span>
+                  </div>
+                )}
+                {selectedDj.instagram && (
+                  <div className="flex items-center gap-3 text-sm">
+                    <span className="text-lg">📸</span>
+                    <a
+                      href={`https://instagram.com/${selectedDj.instagram.replace("@","")}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="text-emerald-700 font-semibold hover:underline"
+                      dir="ltr"
+                    >
+                      @{selectedDj.instagram.replace("@","")}
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex gap-3">
+                {selectedDj.phone && (
+                  <a
+                    href={`https://wa.me/${selectedDj.phone.replace(/\D/g,"")}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold bg-green-100 border border-green-300 text-green-700 hover:bg-green-200 transition-all"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.98 0C5.363 0 0 5.363 0 11.98c0 2.107.553 4.082 1.52 5.8L0 24l6.387-1.494A11.932 11.932 0 0011.98 23.96C18.596 23.96 24 18.596 24 11.98 24 5.363 18.596 0 11.98 0zm0 21.927a9.913 9.913 0 01-5.047-1.377l-.362-.215-3.792.886.932-3.699-.236-.38A9.888 9.888 0 012.047 11.98c0-5.485 4.463-9.933 9.933-9.933s9.933 4.448 9.933 9.933-4.448 9.947-9.933 9.947z"/></svg>
+                    {t.whatsapp}
+                  </a>
+                )}
+                {selectedDj.instagram && (
+                  <a
+                    href={`https://instagram.com/${selectedDj.instagram.replace("@","")}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold bg-emerald-100 border border-emerald-300 text-emerald-700 hover:bg-emerald-200 transition-all"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    {t.instagram}
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Available venues on same date */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <h2 className="font-black text-xl text-foreground">{t.djPageVenues}</h2>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
+              {djVenuesLoading && (
+                <div className="flex justify-center py-10">
+                  <span className="spinner" style={{ width: 32, height: 32 }} />
+                </div>
+              )}
+
+              {!djVenuesLoading && djVenues.length === 0 && (
+                <div className="text-center py-12 space-y-3">
+                  <div className="text-5xl">🏛</div>
+                  <p className="text-muted-foreground">{t.noVenuesForDate}</p>
+                </div>
+              )}
+
+              {!djVenuesLoading && djVenues.length > 0 && (
+                <div className="grid sm:grid-cols-2 gap-5">
+                  {djVenues.map((venue) => (
+                    <div key={venue.id} className="glass-strong rounded-2xl p-6 space-y-4 hover:neon-glow transition-all duration-300">
+                      <div className="flex items-center gap-4">
+                        <Avatar url={venue.avatar_url} name={venue.name} type="venue" size="lg" />
+                        <div className="flex-1 min-w-0">
+                          <span className="inline-block mb-1 px-3 py-0.5 rounded-full text-xs font-black badge-venue">{t.venue}</span>
+                          <h3 className="font-black text-lg text-foreground leading-tight">{venue.name}</h3>
+                          <div className="mt-1 inline-flex items-center gap-1.5 bg-green-100 text-green-700 border border-green-300 px-2 py-0.5 rounded-full text-xs font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse-glow inline-block" />
+                            {t.onlineIndicator}
+                          </div>
+                        </div>
+                      </div>
+                      {venue.phone && <div className="flex items-center gap-2 text-sm text-muted-foreground"><span>📞</span><span dir="ltr">{venue.phone}</span></div>}
+                      {venue.instagram && (
+                        <a href={`https://instagram.com/${venue.instagram.replace("@","")}`} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-emerald-700 hover:underline w-fit">
+                          <span>📸</span><span dir="ltr">@{venue.instagram.replace("@","")}</span>
+                        </a>
+                      )}
+                      <div className="flex gap-3">
+                        {venue.phone && (
+                          <a href={`https://wa.me/${venue.phone.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold bg-green-100 border border-green-300 text-green-700 hover:bg-green-200 transition-all">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.98 0C5.363 0 0 5.363 0 11.98c0 2.107.553 4.082 1.52 5.8L0 24l6.387-1.494A11.932 11.932 0 0011.98 23.96C18.596 23.96 24 18.596 24 11.98 24 5.363 18.596 0 11.98 0zm0 21.927a9.913 9.913 0 01-5.047-1.377l-.362-.215-3.792.886.932-3.699-.236-.38A9.888 9.888 0 012.047 11.98c0-5.485 4.463-9.933 9.933-9.933s9.933 4.448 9.933 9.933-4.448 9.947-9.933 9.947z"/></svg>
+                            {t.whatsapp}
+                          </a>
+                        )}
+                        {venue.instagram && (
+                          <a href={`https://instagram.com/${venue.instagram.replace("@","")}`} target="_blank" rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold bg-emerald-100 border border-emerald-300 text-emerald-700 hover:bg-emerald-200 transition-all">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                            {t.instagram}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
