@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 
-// ─── הגדרות Supabase ── إعدادات Supabase ───────────────────────────────────
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? "YOUR_SUPABASE_URL";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "YOUR_SUPABASE_ANON_KEY";
 
@@ -14,7 +13,157 @@ const supabase: SupabaseClient = isConfigured
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : (null as unknown as SupabaseClient);
 
-// ─── טיפוסים ── الأنواع ────────────────────────────────────────────────────
+// ─── اللغة ── שפה ──────────────────────────────────────────────────────────
+type Lang = "ar" | "he";
+
+const TR = {
+  ar: {
+    appName: "سوا پارتي",
+    tagline: "ابحث عن ديجي أو مكان متاح في يومك المفضل",
+    search: "بحث",
+    dashboard: "لوحة التحكم",
+    login: "دخول",
+    logout: "خروج",
+    searchByDate: "📅 بحث بالتاريخ",
+    searchByVendor: "🎤 بحث بالبائع",
+    searchNow: "🔍 ابحث الآن",
+    dj: "ديجي",
+    venue: "مكان",
+    available: "✓ متاح",
+    booked: "✕ محجوز",
+    empty: "فارغ",
+    whatsapp: "واتساپ",
+    instagram: "إنستغرام",
+    results: "نتائج",
+    vendorsAvailable: "البائعون المتاحون",
+    noMatch: "لا يوجد تطابق",
+    noVendors: "لا يوجد نتائج",
+    noAvailableVendors: "لا يوجد بائعون متاحون في هذا التاريخ",
+    typeVendorName: "اكتب اسم البائع...",
+    selected: "تم اختياره",
+    searching: "جارٍ البحث...",
+    welcomeBack: "مرحباً! 🎉",
+    loggedOut: "تم تسجيل الخروج",
+    vendorPortal: "بوابة البائع",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    loginBtn: "دخول →",
+    loggingIn: "جارٍ الدخول...",
+    fillAll: "يرجى ملء جميع الحقول",
+    wrongPassword: "كلمة المرور خاطئة",
+    invalidEmail: "البريد غير صالح",
+    networkError: "خطأ في الاتصال",
+    backToSearch: "← العودة للبحث",
+    controlPanel: "لوحة التحكم",
+    welcomeUser: "مرحباً",
+    profileTitle: "الملف الشخصي",
+    nameLabel: "الاسم",
+    namePlaceholder: "اسمك",
+    phoneLabel: "الهاتف",
+    instagramLabel: "إنستغرام",
+    save: "💾 حفظ",
+    saving: "جارٍ الحفظ...",
+    savingError: "خطأ في الحفظ",
+    saved: "تم الحفظ! ✓",
+    availabilityCalendar: "جدول التوفر",
+    calendarInstructions: "انقر على يوم للتغيير",
+    howToUse: "طريقة الاستخدام:",
+    clickCycle: "⬜ فارغ → 🟢 متاح → 🔴 محجوز → ⬜ حذف",
+    daySetAvailable: "تم ضبط اليوم كمتاح ✓",
+    daySetBooked: "تم ضبطه كمحجوز",
+    dayRemoved: "تمت إزالة اليوم",
+    searchError: "خطأ في البحث",
+    selectDate: "اختر تاريخاً",
+    selectVendor: "اختر بائعاً",
+    loginFirst: "يجب تسجيل الدخول أولاً",
+    setupRequired: "الإعداد مطلوب",
+    setupDesc: "لإعداد التطبيق، أضف متغيرات البيئة:",
+    setupNote: "أضفها في Secrets ثم أعد تشغيل التطبيق",
+    footer: "معاً نصنع الحفلات",
+    tryAnother: "جرب بائعاً آخر",
+    vendor: "بائع",
+    searchDateTitle: "ابحث بتاريخ",
+    searchVendorTitle: "ابحث بالبائع",
+    legendAvailable: "متاح",
+    legendBooked: "محجوز",
+    legendEmpty: "فارغ",
+    onlineIndicator: "متاح",
+  },
+  he: {
+    appName: "סוא פארטי",
+    tagline: "מצא דיג׳יי או מקום פנוי לאירוע שלך",
+    search: "חיפוש",
+    dashboard: "לוח בקרה",
+    login: "כניסה",
+    logout: "יציאה",
+    searchByDate: "📅 חיפוש לפי תאריך",
+    searchByVendor: "🎤 חיפוש לפי ספק",
+    searchNow: "🔍 חפש",
+    dj: "דיג׳יי",
+    venue: "אולם",
+    available: "✓ זמין",
+    booked: "✕ תפוס",
+    empty: "ריק",
+    whatsapp: "וואטסאפ",
+    instagram: "אינסטגרם",
+    results: "תוצאות",
+    vendorsAvailable: "ספקים זמינים",
+    noMatch: "אין התאמות",
+    noVendors: "אין תוצאות",
+    noAvailableVendors: "אין ספקים זמינים בתאריך זה",
+    typeVendorName: "חפש ספק...",
+    selected: "נבחר",
+    searching: "מחפש...",
+    welcomeBack: "ברוך הבא! 🎉",
+    loggedOut: "התנתקת",
+    vendorPortal: "פורטל הספקים",
+    email: "אימייל",
+    password: "סיסמה",
+    loginBtn: "כניסה →",
+    loggingIn: "נכנס...",
+    fillAll: "מלא את כל השדות",
+    wrongPassword: "סיסמה שגויה",
+    invalidEmail: "אימייל לא תקין",
+    networkError: "שגיאת רשת",
+    backToSearch: "← חזרה לחיפוש",
+    controlPanel: "לוח בקרה",
+    welcomeUser: "ברוך הבא",
+    profileTitle: "פרופיל",
+    nameLabel: "שם",
+    namePlaceholder: "השם שלך",
+    phoneLabel: "טלפון",
+    instagramLabel: "אינסטגרם",
+    save: "💾 שמור",
+    saving: "שומר...",
+    savingError: "שגיאה בשמירה",
+    saved: "נשמר! ✓",
+    availabilityCalendar: "לוח זמינות",
+    calendarInstructions: "לחץ על יום לשינוי",
+    howToUse: "איך להשתמש:",
+    clickCycle: "ריק → 🟢 זמין → 🔴 תפוס → ריק",
+    daySetAvailable: "נקבע כזמין ✓",
+    daySetBooked: "נקבע כתפוס",
+    dayRemoved: "היום הוסר",
+    searchError: "שגיאה בחיפוש",
+    selectDate: "בחר תאריך",
+    selectVendor: "בחר ספק",
+    loginFirst: "יש להתחבר קודם",
+    setupRequired: "נדרשת הגדרה",
+    setupDesc: "להגדרת האפליקציה, הוסף משתני סביבה:",
+    setupNote: "הוסף ב-Secrets ואז הפעל מחדש",
+    footer: "ביחד עושים מסיבות",
+    tryAnother: "נסה ספק אחר",
+    vendor: "ספק",
+    searchDateTitle: "חפש לפי תאריך",
+    searchVendorTitle: "חפש לפי ספק",
+    legendAvailable: "זמין",
+    legendBooked: "תפוס",
+    legendEmpty: "ריק",
+    onlineIndicator: "זמין",
+  },
+} as const;
+
+// ─── Types ──────────────────────────────────────────────────────────────────
 interface Profile {
   id: string;
   name: string;
@@ -22,51 +171,36 @@ interface Profile {
   phone: string;
   instagram: string;
 }
-
 interface Availability {
   id: number;
   vendor_id: string;
   date: string;
   status: "available" | "booked";
 }
-
 interface SearchResult extends Profile {
   status: "available" | "booked";
 }
-
 interface GroupedResult {
   date: string;
   vendors: SearchResult[];
 }
-
 type View = "search" | "login" | "dashboard";
 type SearchMode = "date" | "vendor";
 
-// ─── Toast ─────────────────────────────────────────────────────────────────
+// ─── Toast ──────────────────────────────────────────────────────────────────
 interface ToastItem {
   id: number;
   message: string;
   type: "success" | "error" | "info";
 }
-
 let toastId = 0;
 
 function ToastContainer({ toasts, onRemove }: { toasts: ToastItem[]; onRemove: (id: number) => void }) {
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none">
       {toasts.map((t) => (
-        <div
-          key={t.id}
-          className={`glass-strong rounded-xl px-5 py-3 text-sm font-medium flex items-center gap-3 pointer-events-auto animate-slide-up shadow-xl ${
-            t.type === "success" ? "border-green-500/30 text-green-300" :
-            t.type === "error" ? "border-red-500/30 text-red-300" :
-            "border-indigo-500/30 text-indigo-300"
-          }`}
-          style={{ borderWidth: "1px" }}
-        >
-          <span className="text-base">
-            {t.type === "success" ? "✓" : t.type === "error" ? "✕" : "ℹ"}
-          </span>
+        <div key={t.id} className={`glass-strong rounded-xl px-5 py-3 text-sm font-medium flex items-center gap-3 pointer-events-auto animate-slide-up shadow-xl ${t.type === "success" ? "border-green-500/30 text-green-300" : t.type === "error" ? "border-red-500/30 text-red-300" : "border-indigo-500/30 text-indigo-300"}`} style={{ borderWidth: "1px" }}>
+          <span className="text-base">{t.type === "success" ? "✓" : t.type === "error" ? "✕" : "ℹ"}</span>
           <span className="flex-1">{t.message}</span>
           <button onClick={() => onRemove(t.id)} className="opacity-60 hover:opacity-100 text-lg leading-none">×</button>
         </div>
@@ -75,7 +209,7 @@ function ToastContainer({ toasts, onRemove }: { toasts: ToastItem[]; onRemove: (
   );
 }
 
-// ─── أسماء الأشهر ─────────────────────────────────────────────────────────
+// ─── Calendar ───────────────────────────────────────────────────────────────
 const MONTHS_AR = ["يناير","فبراير","مارس","إبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 const MONTHS_HE = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const DAYS_AR = ["أحد","إثن","ثلاث","أربع","خمس","جمعة","سبت"];
@@ -85,62 +219,42 @@ function formatDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-// ─── مكون التقويم ── רכיב לוח השנה ───────────────────────────────────────
-function Calendar({
-  availabilityMap,
-  onDayClick,
-  loading,
-}: {
+function Calendar({ availabilityMap, onDayClick, loading, lang }: {
   availabilityMap: Record<string, Availability>;
   onDayClick: (dateStr: string, current: Availability | undefined) => void;
   loading: boolean;
+  lang: Lang;
 }) {
+  const t = TR[lang];
   const [current, setCurrent] = useState(new Date());
-
   const year = current.getFullYear();
   const month = current.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const today = formatDate(new Date());
-
   const cells: (number | null)[] = [];
   for (let i = 0; i < firstDay; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
+  const monthName = lang === "ar" ? MONTHS_AR[month] : MONTHS_HE[month];
+  const days = lang === "ar" ? DAYS_AR : DAYS_HE;
+
   return (
     <div className="glass rounded-2xl p-5">
       <div className="flex items-center justify-between mb-5">
-        <button
-          onClick={() => setCurrent(new Date(year, month + 1, 1))}
-          className="w-9 h-9 rounded-lg glass flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-        >
-          ‹
-        </button>
+        <button onClick={() => setCurrent(new Date(year, month + 1, 1))} className="w-9 h-9 rounded-lg glass flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">‹</button>
         <div className="text-center">
-          <div className="font-bold text-foreground">
-            {MONTHS_AR[month]} {year}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            {MONTHS_HE[month]} {year}
-          </div>
+          <div className="font-bold text-foreground">{monthName} {year}</div>
         </div>
-        <button
-          onClick={() => setCurrent(new Date(year, month - 1, 1))}
-          className="w-9 h-9 rounded-lg glass flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-        >
-          ›
-        </button>
+        <button onClick={() => setCurrent(new Date(year, month - 1, 1))} className="w-9 h-9 rounded-lg glass flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">›</button>
       </div>
-
       <div className="grid grid-cols-7 mb-2">
-        {DAYS_AR.map((d, i) => (
+        {days.map((d, i) => (
           <div key={i} className="text-center py-1">
             <div className="text-xs font-semibold text-indigo-400">{d}</div>
-            <div className="text-[10px] text-muted-foreground">{DAYS_HE[i]}</div>
           </div>
         ))}
       </div>
-
       <div className="grid grid-cols-7 gap-1">
         {cells.map((day, i) => {
           if (!day) return <div key={i} />;
@@ -148,95 +262,55 @@ function Calendar({
           const avail = availabilityMap[dateStr];
           const isToday = dateStr === today;
           const isPast = dateStr < today;
-
           let cls = "day-empty";
           if (avail?.status === "available") cls = "day-available";
           else if (avail?.status === "booked") cls = "day-booked";
-
           return (
-            <button
-              key={i}
-              onClick={() => !isPast && !loading && onDayClick(dateStr, avail)}
-              disabled={isPast || loading}
-              className={`relative aspect-square rounded-lg text-sm font-medium transition-all duration-200 ${cls} ${
-                isToday ? "day-today ring-2 ring-indigo-500/60" : ""
-              } ${isPast ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
-            >
+            <button key={i} onClick={() => !isPast && !loading && onDayClick(dateStr, avail)} disabled={isPast || loading}
+              className={`relative aspect-square rounded-lg text-sm font-medium transition-all duration-200 ${cls} ${isToday ? "day-today ring-2 ring-indigo-500/60" : ""} ${isPast ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}>
               {day}
             </button>
           );
         })}
       </div>
-
       <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border text-xs">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-green-500/30 border border-green-500/50" />
-          <span className="text-muted-foreground">متاح / זמין</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-red-500/30 border border-red-500/50" />
-          <span className="text-muted-foreground">محجوز / תפוס</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-white/5 border border-white/10" />
-          <span className="text-muted-foreground">فارغ / ריק</span>
-        </div>
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-green-500/30 border border-green-500/50" /><span className="text-muted-foreground">{t.legendAvailable}</span></div>
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-red-500/30 border border-red-500/50" /><span className="text-muted-foreground">{t.legendBooked}</span></div>
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-white/5 border border-white/10" /><span className="text-muted-foreground">{t.legendEmpty}</span></div>
       </div>
     </div>
   );
 }
 
-// ─── بطاقة بائع ── כרטיס ספק ──────────────────────────────────────────────
-function VendorCard({ vendor }: { vendor: SearchResult }) {
+// ─── VendorCard (small — date results) ──────────────────────────────────────
+function VendorCard({ vendor, lang }: { vendor: SearchResult; lang: Lang }) {
+  const t = TR[lang];
   const waLink = `https://wa.me/${vendor.phone?.replace(/\D/g, "")}`;
   const igLink = `https://instagram.com/${vendor.instagram?.replace("@", "")}`;
-
   return (
     <div className="glass rounded-2xl p-5 animate-slide-up hover:neon-glow transition-all duration-300">
       <div className="flex items-start justify-between mb-3">
         <div>
           <h3 className="font-bold text-lg text-foreground">{vendor.name}</h3>
-          <span className={`inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-semibold ${
-            vendor.type === "dj" ? "badge-dj" : "badge-venue"
-          }`}>
-            {vendor.type === "dj" ? "ديجي / DJ" : "مكان / אולם"}
+          <span className={`inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-semibold ${vendor.type === "dj" ? "badge-dj" : "badge-venue"}`}>
+            {vendor.type === "dj" ? t.dj : t.venue}
           </span>
         </div>
-        <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-          vendor.status === "available"
-            ? "bg-green-500/20 text-green-400 border border-green-500/30"
-            : "bg-red-500/20 text-red-400 border border-red-500/30"
-        }`}>
-          {vendor.status === "available" ? "✓ متاح / זמין" : "✕ محجوز / תפוס"}
+        <div className={`px-3 py-1 rounded-full text-xs font-semibold ${vendor.status === "available" ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-red-500/20 text-red-400 border border-red-500/30"}`}>
+          {vendor.status === "available" ? t.available : t.booked}
         </div>
       </div>
-
       <div className="flex flex-wrap gap-2 mt-4">
         {vendor.phone && (
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-              <path d="M11.98 0C5.363 0 0 5.363 0 11.98c0 2.107.553 4.082 1.52 5.8L0 24l6.387-1.494A11.932 11.932 0 0011.98 23.96C18.596 23.96 24 18.596 24 11.98 24 5.363 18.596 0 11.98 0zm0 21.927a9.913 9.913 0 01-5.047-1.377l-.362-.215-3.792.886.932-3.699-.236-.38A9.888 9.888 0 012.047 11.98c0-5.485 4.463-9.933 9.933-9.933s9.933 4.448 9.933 9.933-4.448 9.947-9.933 9.947z"/>
-            </svg>
-            واتساپ / וואטסאפ
+          <a href={waLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.98 0C5.363 0 0 5.363 0 11.98c0 2.107.553 4.082 1.52 5.8L0 24l6.387-1.494A11.932 11.932 0 0011.98 23.96C18.596 23.96 24 18.596 24 11.98 24 5.363 18.596 0 11.98 0zm0 21.927a9.913 9.913 0 01-5.047-1.377l-.362-.215-3.792.886.932-3.699-.236-.38A9.888 9.888 0 012.047 11.98c0-5.485 4.463-9.933 9.933-9.933s9.933 4.448 9.933 9.933-4.448 9.947-9.933 9.947z"/></svg>
+            {t.whatsapp}
           </a>
         )}
         {vendor.instagram && (
-          <a
-            href={igLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-purple-500/15 border border-purple-500/30 text-purple-400 hover:bg-purple-500/25"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-            إنستغرام / אינסטגרם
+          <a href={igLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-purple-500/15 border border-purple-500/30 text-purple-400 hover:bg-purple-500/25">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            {t.instagram}
           </a>
         )}
       </div>
@@ -244,73 +318,43 @@ function VendorCard({ vendor }: { vendor: SearchResult }) {
   );
 }
 
-// ─── بطاقة بائع كبيرة ── כרטיס ספק גדול ──────────────────────────────────
-function VendorCardLarge({ vendor }: { vendor: SearchResult }) {
+// ─── VendorCardLarge (vendor search results) ─────────────────────────────────
+function VendorCardLarge({ vendor, lang }: { vendor: SearchResult; lang: Lang }) {
+  const t = TR[lang];
   const waLink = `https://wa.me/${vendor.phone?.replace(/\D/g, "")}`;
   const igLink = `https://instagram.com/${vendor.instagram?.replace("@", "")}`;
-
   return (
     <div className="glass-strong rounded-2xl p-6 animate-slide-up hover:neon-glow transition-all duration-300 space-y-4">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 ${
-            vendor.type === "dj" ? "bg-indigo-500/15 border border-indigo-500/30" : "bg-purple-500/15 border border-purple-500/30"
-          }`}>
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 ${vendor.type === "dj" ? "bg-indigo-500/15 border border-indigo-500/30" : "bg-purple-500/15 border border-purple-500/30"}`}>
             {vendor.type === "dj" ? "🎧" : "🏛"}
           </div>
           <div>
             <h3 className="font-black text-xl text-foreground leading-tight">{vendor.name}</h3>
-            <span className={`inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-semibold ${
-              vendor.type === "dj" ? "badge-dj" : "badge-venue"
-            }`}>
-              {vendor.type === "dj" ? "ديجي / DJ" : "مكان / אולם"}
+            <span className={`inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-semibold ${vendor.type === "dj" ? "badge-dj" : "badge-venue"}`}>
+              {vendor.type === "dj" ? t.dj : t.venue}
             </span>
           </div>
         </div>
         <div className="bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 flex-shrink-0">
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse-glow inline-block" />
-          متاح / זמין
+          {t.onlineIndicator}
         </div>
       </div>
-
-      {vendor.phone && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>📞</span>
-          <span dir="ltr">{vendor.phone}</span>
-        </div>
-      )}
-      {vendor.instagram && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>📸</span>
-          <span dir="ltr">@{vendor.instagram?.replace("@", "")}</span>
-        </div>
-      )}
-
+      {vendor.phone && <div className="flex items-center gap-2 text-sm text-muted-foreground"><span>📞</span><span dir="ltr">{vendor.phone}</span></div>}
+      {vendor.instagram && <div className="flex items-center gap-2 text-sm text-muted-foreground"><span>📸</span><span dir="ltr">@{vendor.instagram?.replace("@", "")}</span></div>}
       <div className="flex gap-3 pt-1">
         {vendor.phone && (
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 hover:shadow-lg"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.98 0C5.363 0 0 5.363 0 11.98c0 2.107.553 4.082 1.52 5.8L0 24l6.387-1.494A11.932 11.932 0 0011.98 23.96C18.596 23.96 24 18.596 24 11.98 24 5.363 18.596 0 11.98 0zm0 21.927a9.913 9.913 0 01-5.047-1.377l-.362-.215-3.792.886.932-3.699-.236-.38A9.888 9.888 0 012.047 11.98c0-5.485 4.463-9.933 9.933-9.933s9.933 4.448 9.933 9.933-4.448 9.947-9.933 9.947z"/>
-            </svg>
-            واتساپ / וואטסאפ
+          <a href={waLink} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 hover:shadow-lg">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.98 0C5.363 0 0 5.363 0 11.98c0 2.107.553 4.082 1.52 5.8L0 24l6.387-1.494A11.932 11.932 0 0011.98 23.96C18.596 23.96 24 18.596 24 11.98 24 5.363 18.596 0 11.98 0zm0 21.927a9.913 9.913 0 01-5.047-1.377l-.362-.215-3.792.886.932-3.699-.236-.38A9.888 9.888 0 012.047 11.98c0-5.485 4.463-9.933 9.933-9.933s9.933 4.448 9.933 9.933-4.448 9.947-9.933 9.947z"/></svg>
+            {t.whatsapp}
           </a>
         )}
         {vendor.instagram && (
-          <a
-            href={igLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 bg-purple-500/15 border border-purple-500/30 text-purple-400 hover:bg-purple-500/25 hover:shadow-lg"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-            إنستغرام / אינסטגרם
+          <a href={igLink} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 bg-purple-500/15 border border-purple-500/30 text-purple-400 hover:bg-purple-500/25 hover:shadow-lg">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            {t.instagram}
           </a>
         )}
       </div>
@@ -318,14 +362,16 @@ function VendorCardLarge({ vendor }: { vendor: SearchResult }) {
   );
 }
 
-// ─── التطبيق الرئيسي ── האפליקציה הראשית ──────────────────────────────────
+// ─── App ─────────────────────────────────────────────────────────────────────
 export default function App() {
+  const [lang, setLang] = useState<Lang>("ar");
+  const t = TR[lang];
+
   const [view, setView] = useState<View>("search");
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
-  // Search state
   const [searchMode, setSearchMode] = useState<SearchMode>("date");
   const [searchDate, setSearchDate] = useState("");
   const [vendors, setVendors] = useState<Profile[]>([]);
@@ -336,14 +382,12 @@ export default function App() {
   const [searchLoading, setSearchLoading] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // Login state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
 
-  // Dashboard state
   const [availabilityMap, setAvailabilityMap] = useState<Record<string, Availability>>({});
   const [calLoading, setCalLoading] = useState(false);
   const [editName, setEditName] = useState("");
@@ -357,39 +401,22 @@ export default function App() {
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
   }, []);
+  const removeToast = useCallback((id: number) => setToasts((prev) => prev.filter((t) => t.id !== id)), []);
 
-  const removeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
-
-  // ── تحقق من الجلسة عند التحميل ──────────────────────────────────────────
   useEffect(() => {
     if (!isConfigured) return;
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) {
-        setUser(data.session.user);
-        loadProfile(data.session.user.id);
-      }
+      if (data.session?.user) { setUser(data.session.user); loadProfile(data.session.user.id); }
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        loadProfile(session.user.id);
-      } else {
-        setUser(null);
-        setProfile(null);
-      }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session?.user) { setUser(session.user); loadProfile(session.user.id); }
+      else { setUser(null); setProfile(null); }
     });
     return () => subscription.unsubscribe();
   }, []);
 
-  // ── تحميل الملف الشخصي ──────────────────────────────────────────────────
   async function loadProfile(userId: string) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
     if (!error && data) {
       setProfile(data as Profile);
       setEditName(data.name ?? "");
@@ -398,21 +425,14 @@ export default function App() {
     }
   }
 
-  // ── تحميل البائعين ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!isConfigured) return;
-    supabase.from("profiles").select("*").then(({ data }) => {
-      if (data) setVendors(data as Profile[]);
-    });
+    supabase.from("profiles").select("*").then(({ data }) => { if (data) setVendors(data as Profile[]); });
   }, []);
 
-  // ── تحميل التوفر (لوحة التحكم) ─────────────────────────────────────────
   async function loadAvailability(userId: string) {
     setCalLoading(true);
-    const { data, error } = await supabase
-      .from("availability")
-      .select("*")
-      .eq("vendor_id", userId);
+    const { data, error } = await supabase.from("availability").select("*").eq("vendor_id", userId);
     setCalLoading(false);
     if (!error && data) {
       const map: Record<string, Availability> = {};
@@ -421,56 +441,33 @@ export default function App() {
     }
   }
 
-  useEffect(() => {
-    if (view === "dashboard" && user) loadAvailability(user.id);
-  }, [view, user]);
+  useEffect(() => { if (view === "dashboard" && user) loadAvailability(user.id); }, [view, user]);
 
-  // ── البحث بالتاريخ ───────────────────────────────────────────────────────
   async function searchByDate() {
-    if (!searchDate) return addToast("اختر تاريخاً / בחר תאריך", "error");
-    setSearchLoading(true);
-    setDateResults([]);
-    const { data: avails, error } = await supabase
-      .from("availability")
-      .select("vendor_id, status")
-      .eq("date", searchDate)
-      .eq("status", "available");
-    if (error) { addToast("خطأ في البحث / שגיאה בחיפוש", "error"); setSearchLoading(false); return; }
+    if (!searchDate) return addToast(t.selectDate, "error");
+    setSearchLoading(true); setDateResults([]);
+    const { data: avails, error } = await supabase.from("availability").select("vendor_id, status").eq("date", searchDate).eq("status", "available");
+    if (error) { addToast(t.searchError, "error"); setSearchLoading(false); return; }
     if (!avails?.length) { setSearchLoading(false); return; }
     const ids = avails.map((a: { vendor_id: string }) => a.vendor_id);
     const { data: profiles } = await supabase.from("profiles").select("*").in("id", ids);
     if (profiles) {
-      const results: SearchResult[] = (profiles as Profile[]).map((p) => ({
-        ...p,
-        status: "available" as const,
-      }));
-      setDateResults(results);
+      setDateResults((profiles as Profile[]).map((p) => ({ ...p, status: "available" as const })));
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
     }
     setSearchLoading(false);
   }
 
-  // ── البحث بالبائع ────────────────────────────────────────────────────────
   async function searchByVendor(vendorId?: string) {
     const id = vendorId ?? selectedVendorId;
-    if (!id) return addToast("اختر بائعاً / בחר ספק", "error");
-    setSearchLoading(true);
-    setVendorResults([]);
-    const { data: myDates, error } = await supabase
-      .from("availability")
-      .select("date")
-      .eq("vendor_id", id)
-      .eq("status", "available");
+    if (!id) return addToast(t.selectVendor, "error");
+    setSearchLoading(true); setVendorResults([]);
+    const { data: myDates, error } = await supabase.from("availability").select("date").eq("vendor_id", id).eq("status", "available");
     if (error || !myDates?.length) { setSearchLoading(false); return; }
     const dates = myDates.map((d: { date: string }) => d.date);
-    const { data: otherAvails } = await supabase
-      .from("availability")
-      .select("vendor_id, date, status")
-      .in("date", dates)
-      .eq("status", "available")
-      .neq("vendor_id", id);
+    const { data: otherAvails } = await supabase.from("availability").select("vendor_id, date, status").in("date", dates).eq("status", "available").neq("vendor_id", id);
     if (!otherAvails?.length) { setSearchLoading(false); return; }
-    const uniqueIds = [...new Set((otherAvails as { vendor_id: string; date: string; status: string }[]).map((a) => a.vendor_id))];
+    const uniqueIds = [...new Set((otherAvails as { vendor_id: string }[]).map((a) => a.vendor_id))];
     const { data: profiles } = await supabase.from("profiles").select("*").in("id", uniqueIds);
     if (!profiles) { setSearchLoading(false); return; }
     const profMap: Record<string, Profile> = {};
@@ -481,359 +478,207 @@ export default function App() {
       const prof = profMap[a.vendor_id];
       if (prof) byDate[a.date].push({ ...prof, status: a.status });
     });
-    const grouped: GroupedResult[] = Object.entries(byDate)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, vendors]) => ({ date, vendors }));
+    const grouped: GroupedResult[] = Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b)).map(([date, vendors]) => ({ date, vendors }));
     setVendorResults(grouped);
     setSearchLoading(false);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
   }
 
-  // ── تسجيل الدخول ─────────────────────────────────────────────────────────
   async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setLoginError("");
-    if (!email || !password) { setLoginError("يرجى ملء جميع الحقول / מלא את כל השדות"); return; }
+    e.preventDefault(); setLoginError("");
+    if (!email || !password) { setLoginError(t.fillAll); return; }
     setLoginLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoginLoading(false);
     if (error) {
-      if (error.message.includes("Invalid login")) setLoginError("كلمة المرور خاطئة / סיסמה שגויה");
-      else if (error.message.includes("Invalid email")) setLoginError("البريد غير صالح / אימייל לא תקין");
-      else setLoginError("خطأ في الاتصال / שגיאת רשת");
+      if (error.message.includes("Invalid login")) setLoginError(t.wrongPassword);
+      else if (error.message.includes("Invalid email")) setLoginError(t.invalidEmail);
+      else setLoginError(t.networkError);
       return;
     }
-    addToast("مرحباً! / ברוך הבא! 🎉", "success");
+    addToast(t.welcomeBack, "success");
     setView("dashboard");
   }
 
-  // ── تسجيل الخروج ─────────────────────────────────────────────────────────
   async function handleLogout() {
     await supabase.auth.signOut();
     setView("search");
-    addToast("تم تسجيل الخروج / התנתקת", "info");
+    addToast(t.loggedOut, "info");
   }
 
-  // ── حفظ الملف الشخصي ─────────────────────────────────────────────────────
   async function saveProfile() {
     if (!user) return;
     setProfileSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ name: editName, phone: editPhone, instagram: editInstagram })
-      .eq("id", user.id);
+    const { error } = await supabase.from("profiles").update({ name: editName, phone: editPhone, instagram: editInstagram }).eq("id", user.id);
     setProfileSaving(false);
-    if (error) addToast("خطأ في الحفظ / שגיאה בשמירה", "error");
-    else {
-      addToast("تم الحفظ / נשמר! ✓", "success");
-      loadProfile(user.id);
-    }
+    if (error) addToast(t.savingError, "error");
+    else { addToast(t.saved, "success"); loadProfile(user.id); }
   }
 
-  // ── النقر على يوم في التقويم ───────────────────────────────────────────
   async function handleDayClick(dateStr: string, current: Availability | undefined) {
     if (!user) return;
     setCalLoading(true);
     if (!current) {
-      const { error } = await supabase
-        .from("availability")
-        .insert({ vendor_id: user.id, date: dateStr, status: "available" });
-      if (!error) addToast("تم ضبط اليوم كمتاح / נקבע כזמין ✓", "success");
+      const { error } = await supabase.from("availability").insert({ vendor_id: user.id, date: dateStr, status: "available" });
+      if (!error) addToast(t.daySetAvailable, "success");
     } else if (current.status === "available") {
-      const { error } = await supabase
-        .from("availability")
-        .update({ status: "booked" })
-        .eq("id", current.id);
-      if (!error) addToast("تم ضبطه كمحجوز / נקבע כתפוס", "info");
+      const { error } = await supabase.from("availability").update({ status: "booked" }).eq("id", current.id);
+      if (!error) addToast(t.daySetBooked, "info");
     } else {
-      const { error } = await supabase
-        .from("availability")
-        .delete()
-        .eq("id", current.id);
-      if (!error) addToast("تمت إزالة اليوم / היום הוסר", "info");
+      const { error } = await supabase.from("availability").delete().eq("id", current.id);
+      if (!error) addToast(t.dayRemoved, "info");
     }
     await loadAvailability(user.id);
     setCalLoading(false);
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ─── Setup screen ──────────────────────────────────────────────────────────
   if (!isConfigured) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" dir="rtl">
         <div className="glass-strong rounded-3xl p-10 w-full max-w-lg text-center space-y-6 neon-border animate-slide-up">
           <div className="text-6xl animate-pulse-glow">⚙️</div>
           <h1 className="text-3xl font-black neon-text-indigo">سوا پارتي</h1>
-          <p className="text-muted-foreground">الإعداد مطلوب / נדרשת הגדרה</p>
+          <p className="text-muted-foreground">{t.setupRequired}</p>
           <div className="glass rounded-2xl p-6 text-right space-y-4">
-            <p className="text-sm font-bold text-foreground">لإعداد التطبيق، أضف متغيرات البيئة:</p>
-            <p className="text-xs text-muted-foreground">להגדרת האפליקציה, הוסף משתני סביבה:</p>
+            <p className="text-sm font-bold text-foreground">{t.setupDesc}</p>
             <div className="space-y-2 font-mono text-xs" dir="ltr">
-              <div className="glass px-4 py-2.5 rounded-xl text-indigo-300 text-left">
-                VITE_SUPABASE_URL=https://your-project.supabase.co
-              </div>
-              <div className="glass px-4 py-2.5 rounded-xl text-purple-300 text-left">
-                VITE_SUPABASE_ANON_KEY=your-anon-key
-              </div>
+              <div className="glass px-4 py-2.5 rounded-xl text-indigo-300 text-left">VITE_SUPABASE_URL=https://your-project.supabase.co</div>
+              <div className="glass px-4 py-2.5 rounded-xl text-purple-300 text-left">VITE_SUPABASE_ANON_KEY=your-anon-key</div>
             </div>
-            <p className="text-xs text-muted-foreground/60">
-              أضفها في Secrets ثم أعد تشغيل التطبيق
-            </p>
-            <p className="text-xs text-muted-foreground/50">
-              הוסף ב-Secrets ואז הפעל מחדש
-            </p>
+            <p className="text-xs text-muted-foreground/60">{t.setupNote}</p>
           </div>
         </div>
       </div>
     );
   }
 
+  // ─── Main ──────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen" dir="rtl">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
-      {/* ── ناف بار ── ניווט ──────────────────────────────────────────────── */}
+      {/* ── Navbar ── */}
       <nav className="sticky top-0 z-40 glass-strong border-b border-border/50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          {/* لوگو */}
-          <button
-            onClick={() => setView("search")}
-            className="flex items-center gap-2 flex-shrink-0"
-          >
+          <button onClick={() => setView("search")} className="flex items-center gap-2 flex-shrink-0">
             <div className="w-9 h-9 rounded-xl neon-border flex items-center justify-center bg-indigo-500/10">
               <span className="text-lg">🎵</span>
             </div>
-            <span className="font-black text-xl neon-text-indigo tracking-wide hidden sm:block">
-              سوا پارتي
-            </span>
+            <span className="font-black text-xl neon-text-indigo tracking-wide hidden sm:block">{t.appName}</span>
           </button>
 
-          {/* روابط سطح المكتب */}
           <div className="hidden md:flex items-center gap-1">
-            <button
-              onClick={() => setView("search")}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                view === "search" ? "bg-indigo-500/20 text-indigo-300 neon-border" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-              }`}
-            >
-              بحث / חיפוש
+            <button onClick={() => setView("search")} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${view === "search" ? "bg-indigo-500/20 text-indigo-300 neon-border" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}>
+              {t.search}
             </button>
-            {user ? (
-              <button
-                onClick={() => setView("dashboard")}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  view === "dashboard" ? "bg-indigo-500/20 text-indigo-300 neon-border" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                }`}
-              >
-                لوحة التحكم / לוח בקרה
+            {user && (
+              <button onClick={() => setView("dashboard")} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${view === "dashboard" ? "bg-indigo-500/20 text-indigo-300 neon-border" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}>
+                {t.dashboard}
               </button>
-            ) : null}
+            )}
           </div>
 
           <div className="flex items-center gap-2">
+            {/* زر اللغة */}
+            <button
+              onClick={() => setLang(lang === "ar" ? "he" : "ar")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass border border-white/10 hover:border-indigo-500/40 transition-all duration-200 text-sm font-bold"
+              title={lang === "ar" ? "עברית" : "العربية"}
+            >
+              <span className="text-base">{lang === "ar" ? "🇮🇱" : "🇵🇸"}</span>
+              <span className="text-muted-foreground hidden sm:block">{lang === "ar" ? "עב" : "عر"}</span>
+            </button>
+
             {user ? (
               <div className="hidden md:flex items-center gap-3">
                 <span className="text-xs text-muted-foreground truncate max-w-[140px]">{profile?.name || user.email}</span>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 rounded-xl text-sm font-medium text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all"
-                >
-                  خروج / יציאה
-                </button>
+                <button onClick={handleLogout} className="px-4 py-2 rounded-xl text-sm font-medium text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all">{t.logout}</button>
               </div>
             ) : (
-              <button
-                onClick={() => setView("login")}
-                className={`btn-neon px-4 py-2 rounded-xl text-sm text-white ${view === "login" ? "opacity-70" : ""}`}
-              >
-                دخول / כניסה
-              </button>
+              <button onClick={() => setView("login")} className={`btn-neon px-4 py-2 rounded-xl text-sm text-white ${view === "login" ? "opacity-70" : ""}`}>{t.login}</button>
             )}
-            {/* Mobile menu */}
-            <button
-              className="md:hidden w-9 h-9 glass rounded-lg flex items-center justify-center"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <div className="space-y-1">
-                <div className="w-4 h-0.5 bg-foreground/70" />
-                <div className="w-4 h-0.5 bg-foreground/70" />
-                <div className="w-4 h-0.5 bg-foreground/70" />
-              </div>
+
+            <button className="md:hidden w-9 h-9 glass rounded-lg flex items-center justify-center" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              <div className="space-y-1"><div className="w-4 h-0.5 bg-foreground/70" /><div className="w-4 h-0.5 bg-foreground/70" /><div className="w-4 h-0.5 bg-foreground/70" /></div>
             </button>
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border/50 px-4 py-3 space-y-1 animate-slide-up">
-            <button
-              onClick={() => { setView("search"); setMobileMenuOpen(false); }}
-              className="w-full text-right px-4 py-3 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
-            >
-              🔍 بحث / חיפוש
-            </button>
-            {user && (
-              <button
-                onClick={() => { setView("dashboard"); setMobileMenuOpen(false); }}
-                className="w-full text-right px-4 py-3 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
-              >
-                🎛 لوحة التحكم / לוח בקרה
-              </button>
-            )}
-            {user ? (
-              <button
-                onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                className="w-full text-right px-4 py-3 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all"
-              >
-                ← خروج / יציאה
-              </button>
-            ) : (
-              <button
-                onClick={() => { setView("login"); setMobileMenuOpen(false); }}
-                className="w-full text-right px-4 py-3 rounded-xl text-sm text-indigo-300 hover:bg-indigo-500/10 transition-all"
-              >
-                → دخول / כניסה
-              </button>
-            )}
+            <button onClick={() => { setView("search"); setMobileMenuOpen(false); }} className="w-full text-right px-4 py-3 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all">🔍 {t.search}</button>
+            {user && <button onClick={() => { setView("dashboard"); setMobileMenuOpen(false); }} className="w-full text-right px-4 py-3 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all">🎛 {t.dashboard}</button>}
+            {user
+              ? <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="w-full text-right px-4 py-3 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all">← {t.logout}</button>
+              : <button onClick={() => { setView("login"); setMobileMenuOpen(false); }} className="w-full text-right px-4 py-3 rounded-xl text-sm text-indigo-300 hover:bg-indigo-500/10 transition-all">→ {t.login}</button>
+            }
           </div>
         )}
       </nav>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
 
-        {/* ═══════════════════ شاشة البحث ═══════════════════ */}
+        {/* ═══ Search ═══ */}
         {view === "search" && (
           <div className="space-y-8 animate-slide-up">
-            {/* هيدر */}
             <div className="text-center space-y-3 py-8">
-              <h1 className="text-5xl md:text-6xl font-black neon-text-indigo">
-                سوا پارتي
-              </h1>
-              <p className="text-xl font-bold neon-text-purple">SawaParty</p>
-              <p className="text-muted-foreground text-lg max-w-lg mx-auto leading-relaxed">
-                ابحث عن ديجي أو مكان متاح في يومك المفضل
-              </p>
-              <p className="text-muted-foreground/70 text-sm">
-                מצא דיג׳יי או מקום פנוי לאירוע שלך
-              </p>
+              <h1 className="text-5xl md:text-6xl font-black neon-text-indigo">{t.appName}</h1>
+              <p className="text-muted-foreground text-lg max-w-lg mx-auto leading-relaxed">{t.tagline}</p>
             </div>
 
-            {/* أزرار وضع البحث */}
             <div className="flex justify-center gap-3">
-              <button
-                onClick={() => setSearchMode("date")}
-                className={`px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${
-                  searchMode === "date"
-                    ? "btn-neon text-white"
-                    : "glass text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                📅 بحث بالتاريخ / לפי תאריך
-              </button>
-              <button
-                onClick={() => setSearchMode("vendor")}
-                className={`px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${
-                  searchMode === "vendor"
-                    ? "btn-neon text-white"
-                    : "glass text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                🎤 بحث بالبائع / לפי ספק
-              </button>
+              <button onClick={() => setSearchMode("date")} className={`px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${searchMode === "date" ? "btn-neon text-white" : "glass text-muted-foreground hover:text-foreground"}`}>{t.searchByDate}</button>
+              <button onClick={() => setSearchMode("vendor")} className={`px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${searchMode === "vendor" ? "btn-neon text-white" : "glass text-muted-foreground hover:text-foreground"}`}>{t.searchByVendor}</button>
             </div>
 
-            {/* البحث بالتاريخ */}
+            {/* Date search */}
             {searchMode === "date" && (
               <div className="glass-strong rounded-2xl p-6 max-w-lg mx-auto space-y-4">
-                <h2 className="font-bold text-lg text-foreground">
-                  ابحث بتاريخ / חפש לפי תאריך
-                </h2>
+                <h2 className="font-bold text-lg text-foreground">{t.searchDateTitle}</h2>
                 <div className="space-y-3">
-                  <input
-                    type="date"
-                    value={searchDate}
-                    onChange={(e) => setSearchDate(e.target.value)}
-                    className="input-dark"
-                    min={new Date().toISOString().split("T")[0]}
-                  />
-                  <button
-                    onClick={searchByDate}
-                    disabled={searchLoading || !searchDate}
-                    className="btn-neon w-full py-3 rounded-xl text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {searchLoading ? <span className="spinner mx-auto" /> : "🔍 ابحث الآن / חפש"}
+                  <input type="date" value={searchDate} onChange={(e) => setSearchDate(e.target.value)} className="input-dark" min={new Date().toISOString().split("T")[0]} />
+                  <button onClick={searchByDate} disabled={searchLoading || !searchDate} className="btn-neon w-full py-3 rounded-xl text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                    {searchLoading ? <span className="spinner mx-auto" /> : t.searchNow}
                   </button>
                 </div>
               </div>
             )}
 
-            {/* البحث بالبائع */}
+            {/* Vendor search */}
             {searchMode === "vendor" && (() => {
-              const filtered = vendors.filter((v) =>
-                !vendorQuery || v.name?.toLowerCase().includes(vendorQuery.toLowerCase())
-              );
+              const filtered = vendors.filter((v) => !vendorQuery || v.name?.toLowerCase().includes(vendorQuery.toLowerCase()));
               const selected = vendors.find((v) => v.id === selectedVendorId);
               return (
                 <div className="max-w-2xl mx-auto space-y-4">
                   <div className="glass-strong rounded-2xl p-6 space-y-4">
-                    <h2 className="font-bold text-lg text-foreground">
-                      ابحث بالبائع / חפש לפי ספק
-                    </h2>
-
-                    {/* حقل البحث النصي */}
+                    <h2 className="font-bold text-lg text-foreground">{t.searchVendorTitle}</h2>
                     <div className="relative">
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-base pointer-events-none">🔍</span>
-                      <input
-                        type="text"
-                        value={vendorQuery}
-                        onChange={(e) => { setVendorQuery(e.target.value); setSelectedVendorId(""); setVendorResults([]); }}
-                        placeholder="اكتب اسم البائع / חפש ספק..."
-                        className="input-dark pr-12"
-                      />
+                      <input type="text" value={vendorQuery} onChange={(e) => { setVendorQuery(e.target.value); setSelectedVendorId(""); setVendorResults([]); }} placeholder={t.typeVendorName} className="input-dark pr-12" />
                     </div>
-
-                    {/* قائمة البائعين */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto scrollbar-hidden">
-                      {filtered.length === 0 && (
-                        <p className="col-span-2 text-center py-4 text-muted-foreground text-sm">
-                          لا يوجد نتائج / אין תוצאות
-                        </p>
-                      )}
+                      {filtered.length === 0 && <p className="col-span-2 text-center py-4 text-muted-foreground text-sm">{t.noVendors}</p>}
                       {filtered.map((v) => {
                         const isSelected = selectedVendorId === v.id;
                         return (
-                          <button
-                            key={v.id}
-                            onClick={() => {
-                              setSelectedVendorId(v.id);
-                              setVendorResults([]);
-                              searchByVendor(v.id);
-                            }}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-right transition-all duration-200 ${
-                              isSelected
-                                ? "neon-border bg-indigo-500/15 text-foreground"
-                                : "glass text-muted-foreground hover:text-foreground hover:bg-white/5"
-                            }`}
-                          >
-                            <span className="text-xl flex-shrink-0">
-                              {v.type === "dj" ? "🎧" : "🏛"}
-                            </span>
+                          <button key={v.id} onClick={() => { setSelectedVendorId(v.id); setVendorResults([]); searchByVendor(v.id); }}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-right transition-all duration-200 ${isSelected ? "neon-border bg-indigo-500/15 text-foreground" : "glass text-muted-foreground hover:text-foreground hover:bg-white/5"}`}>
+                            <span className="text-xl flex-shrink-0">{v.type === "dj" ? "🎧" : "🏛"}</span>
                             <div className="flex-1 min-w-0 text-right">
                               <div className="font-semibold truncate">{v.name}</div>
-                              <div className={`text-xs mt-0.5 ${isSelected ? "text-indigo-300" : "text-muted-foreground"}`}>
-                                {v.type === "dj" ? "ديجي / DJ" : "مكان / אולם"}
-                              </div>
+                              <div className={`text-xs mt-0.5 ${isSelected ? "text-indigo-300" : "text-muted-foreground"}`}>{v.type === "dj" ? t.dj : t.venue}</div>
                             </div>
                             {isSelected && <span className="text-indigo-400 text-lg flex-shrink-0">✓</span>}
                           </button>
                         );
                       })}
                     </div>
-
                     {selected && (
                       <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
                         <span className="text-xl">{selected.type === "dj" ? "🎧" : "🏛"}</span>
                         <div className="flex-1">
-                          <span className="text-sm text-muted-foreground">تم اختياره / נבחר: </span>
+                          <span className="text-sm text-muted-foreground">{t.selected}: </span>
                           <span className="font-bold text-indigo-300">{selected.name}</span>
                         </div>
                         {searchLoading && <span className="spinner flex-shrink-0" />}
@@ -844,94 +689,69 @@ export default function App() {
               );
             })()}
 
-            {/* نتائج البحث بالتاريخ */}
+            {/* Date results */}
             {searchMode === "date" && (
-              <div className="space-y-4">
+              <div ref={resultsRef} className="scroll-mt-24 space-y-4">
                 {searchLoading && (
                   <div className="flex justify-center py-16">
-                    <div className="text-center space-y-3">
-                      <span className="spinner" style={{ width: 36, height: 36 }} />
-                      <p className="text-muted-foreground text-sm">جارٍ البحث... / מחפש...</p>
-                    </div>
+                    <div className="text-center space-y-3"><span className="spinner" style={{ width: 36, height: 36 }} /><p className="text-muted-foreground text-sm">{t.searching}</p></div>
                   </div>
                 )}
                 {!searchLoading && searchDate && dateResults.length === 0 && (
                   <div className="text-center py-16 space-y-3">
                     <div className="text-6xl animate-pulse-glow">🎵</div>
-                    <p className="text-muted-foreground">لا يوجد بائعون متاحون في هذا التاريخ</p>
-                    <p className="text-muted-foreground/60 text-sm">אין ספקים זמינים בתאריך זה</p>
+                    <p className="text-muted-foreground">{t.noAvailableVendors}</p>
                   </div>
                 )}
                 {!searchLoading && dateResults.length > 0 && (
                   <div>
-                    <h3 className="font-bold text-lg mb-4 text-foreground">
-                      النتائج / תוצאות —{" "}
-                      <span className="neon-text-indigo">{dateResults.length}</span>
-                    </h3>
+                    <h3 className="font-bold text-lg mb-4 text-foreground">{t.results} — <span className="neon-text-indigo">{dateResults.length}</span></h3>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {dateResults.map((v) => <VendorCard key={v.id} vendor={v} />)}
+                      {dateResults.map((v) => <VendorCard key={v.id} vendor={v} lang={lang} />)}
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* نتائج البحث بالبائع */}
+            {/* Vendor results */}
             {searchMode === "vendor" && (searchLoading || vendorResults.length > 0 || selectedVendorId) && (
               <div ref={resultsRef} className="scroll-mt-24 space-y-6">
                 {searchLoading && (
                   <div className="flex justify-center py-16">
-                    <div className="text-center space-y-3">
-                      <span className="spinner" style={{ width: 40, height: 40 }} />
-                      <p className="text-muted-foreground text-sm">جارٍ البحث... / מחפש...</p>
-                    </div>
+                    <div className="text-center space-y-3"><span className="spinner" style={{ width: 40, height: 40 }} /><p className="text-muted-foreground text-sm">{t.searching}</p></div>
                   </div>
                 )}
-
                 {!searchLoading && vendorResults.length > 0 && (
                   <>
                     <div className="flex items-center gap-4">
-                      <h3 className="font-black text-2xl text-foreground">
-                        البائعون المتاحون
-                      </h3>
-                      <span className="neon-text-indigo font-black text-2xl">
-                        / ספקים זמינים
-                      </span>
+                      <h3 className="font-black text-2xl text-foreground">{t.vendorsAvailable}</h3>
                       <div className="flex-1 h-px bg-border/50" />
                       <div className="glass px-4 py-1.5 rounded-full">
-                        <span className="text-sm font-bold neon-text-purple">
-                          {vendorResults.reduce((s, g) => s + g.vendors.length, 0)} نتيجة / תוצאות
-                        </span>
+                        <span className="text-sm font-bold neon-text-purple">{vendorResults.reduce((s, g) => s + g.vendors.length, 0)} {t.results}</span>
                       </div>
                     </div>
-
                     {vendorResults.map((group) => (
                       <div key={group.date} className="space-y-4">
-                        {/* تاريخ كبير */}
                         <div className="flex items-center gap-4">
                           <div className="neon-border bg-indigo-500/10 px-6 py-2 rounded-2xl">
                             <span className="text-base font-black neon-text-indigo">📅 {group.date}</span>
                           </div>
                           <div className="flex-1 h-px bg-border/30" />
-                          <span className="text-xs text-muted-foreground">{group.vendors.length} بائع</span>
+                          <span className="text-xs text-muted-foreground">{group.vendors.length} {t.vendor}</span>
                         </div>
-
-                        {/* بطاقات كبيرة */}
                         <div className="grid sm:grid-cols-2 gap-5">
-                          {group.vendors.map((v) => (
-                            <VendorCardLarge key={`${group.date}-${v.id}`} vendor={v} />
-                          ))}
+                          {group.vendors.map((v) => <VendorCardLarge key={`${group.date}-${v.id}`} vendor={v} lang={lang} />)}
                         </div>
                       </div>
                     ))}
                   </>
                 )}
-
                 {!searchLoading && selectedVendorId && vendorResults.length === 0 && (
                   <div className="text-center py-16 space-y-3">
                     <div className="text-6xl animate-pulse-glow">🔎</div>
-                    <p className="text-muted-foreground">لا يوجد تطابق / אין התאמות</p>
-                    <p className="text-xs text-muted-foreground/50">جرب بائعاً آخر / נסה ספק אחר</p>
+                    <p className="text-muted-foreground">{t.noMatch}</p>
+                    <p className="text-xs text-muted-foreground/50">{t.tryAnother}</p>
                   </div>
                 )}
               </div>
@@ -939,219 +759,105 @@ export default function App() {
           </div>
         )}
 
-        {/* ═══════════════════ شاشة الدخول ═══════════════════ */}
+        {/* ═══ Login ═══ */}
         {view === "login" && (
           <div className="flex justify-center items-center min-h-[70vh] animate-slide-up">
             <div className="glass-strong rounded-3xl p-8 w-full max-w-md space-y-6 neon-border">
               <div className="text-center space-y-2">
                 <div className="text-5xl mb-4">🎛</div>
-                <h2 className="text-2xl font-black text-foreground">بوابة البائع</h2>
-                <p className="text-muted-foreground text-sm">פורטל הספקים</p>
+                <h2 className="text-2xl font-black text-foreground">{t.vendorPortal}</h2>
               </div>
-
-              {loginError && (
-                <div className="glass px-4 py-3 rounded-xl border border-red-500/30 text-red-400 text-sm animate-slide-up">
-                  {loginError}
-                </div>
-              )}
-
+              {loginError && <div className="glass px-4 py-3 rounded-xl border border-red-500/30 text-red-400 text-sm animate-slide-up">{loginError}</div>}
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    البريد الإلكتروني / אימייל
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="input-dark"
-                    autoComplete="email"
-                  />
+                  <label className="text-sm font-medium text-muted-foreground">{t.email}</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="input-dark" autoComplete="email" />
                 </div>
-
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    كلمة المرور / סיסמה
-                  </label>
+                  <label className="text-sm font-medium text-muted-foreground">{t.password}</label>
                   <div className="relative">
-                    <input
-                      type={showPass ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="input-dark pl-12"
-                      autoComplete="current-password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPass(!showPass)}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-sm transition-colors"
-                    >
-                      {showPass ? "🙈" : "👁"}
-                    </button>
+                    <input type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="input-dark pl-12" autoComplete="current-password" />
+                    <button type="button" onClick={() => setShowPass(!showPass)} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-sm transition-colors">{showPass ? "🙈" : "👁"}</button>
                   </div>
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={loginLoading}
-                  className="btn-neon w-full py-3 rounded-xl text-white font-bold text-base disabled:opacity-50"
-                >
-                  {loginLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="spinner" />
-                      جارٍ الدخول...
-                    </span>
-                  ) : "دخول / כניסה →"}
+                <button type="submit" disabled={loginLoading} className="btn-neon w-full py-3 rounded-xl text-white font-bold text-base disabled:opacity-50">
+                  {loginLoading ? <span className="flex items-center justify-center gap-2"><span className="spinner" />{t.loggingIn}</span> : t.loginBtn}
                 </button>
               </form>
-
-              <button
-                onClick={() => setView("search")}
-                className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                ← العودة للبحث / חזרה לחיפוש
-              </button>
+              <button onClick={() => setView("search")} className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors">{t.backToSearch}</button>
             </div>
           </div>
         )}
 
-        {/* ═══════════════════ لوحة التحكم ═══════════════════ */}
+        {/* ═══ Dashboard ═══ */}
         {view === "dashboard" && user && (
           <div className="space-y-8 animate-slide-up">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-black text-foreground">
-                  لوحة التحكم <span className="neon-text-indigo">/ לוח בקרה</span>
-                </h1>
-                <p className="text-muted-foreground text-sm mt-1">
-                  مرحباً {profile?.name || user.email} / ברוך הבא
-                </p>
+                <h1 className="text-3xl font-black neon-text-indigo">{t.controlPanel}</h1>
+                <p className="text-muted-foreground text-sm mt-1">{t.welcomeUser} {profile?.name || user.email}</p>
               </div>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all"
-              >
-                خروج / יציאה
-              </button>
+              <button onClick={handleLogout} className="px-4 py-2 rounded-xl text-sm font-medium text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all">{t.logout}</button>
             </div>
-
             <div className="grid lg:grid-cols-2 gap-6">
-              {/* الملف الشخصي */}
               <div className="glass-strong rounded-2xl p-6 space-y-5">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl neon-border bg-indigo-500/10 flex items-center justify-center text-xl">
-                    {profile?.type === "dj" ? "🎧" : "🏛"}
-                  </div>
+                  <div className="w-10 h-10 rounded-xl neon-border bg-indigo-500/10 flex items-center justify-center text-xl">{profile?.type === "dj" ? "🎧" : "🏛"}</div>
                   <div>
-                    <h2 className="font-bold text-lg text-foreground">الملف الشخصي</h2>
-                    <p className="text-xs text-muted-foreground">פרופיל / {profile?.type === "dj" ? "ديجي" : "مكان"}</p>
+                    <h2 className="font-bold text-lg text-foreground">{t.profileTitle}</h2>
+                    <p className="text-xs text-muted-foreground">{profile?.type === "dj" ? t.dj : t.venue}</p>
                   </div>
                 </div>
-
                 <div className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">الاسم / שם</label>
-                    <input
-                      type="text"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="input-dark"
-                      placeholder="اسمك / השם שלך"
-                    />
+                    <label className="text-xs font-medium text-muted-foreground">{t.nameLabel}</label>
+                    <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="input-dark" placeholder={t.namePlaceholder} />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">الهاتف / טלפון</label>
-                    <input
-                      type="tel"
-                      value={editPhone}
-                      onChange={(e) => setEditPhone(e.target.value)}
-                      className="input-dark"
-                      placeholder="+972..."
-                      dir="ltr"
-                    />
+                    <label className="text-xs font-medium text-muted-foreground">{t.phoneLabel}</label>
+                    <input type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="input-dark" placeholder="+972..." dir="ltr" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">إنستغرام / אינסטגרם</label>
-                    <input
-                      type="text"
-                      value={editInstagram}
-                      onChange={(e) => setEditInstagram(e.target.value)}
-                      className="input-dark"
-                      placeholder="@username"
-                      dir="ltr"
-                    />
+                    <label className="text-xs font-medium text-muted-foreground">{t.instagramLabel}</label>
+                    <input type="text" value={editInstagram} onChange={(e) => setEditInstagram(e.target.value)} className="input-dark" placeholder="@username" dir="ltr" />
                   </div>
-
-                  <button
-                    onClick={saveProfile}
-                    disabled={profileSaving}
-                    className="btn-neon w-full py-3 rounded-xl text-white font-semibold disabled:opacity-50"
-                  >
-                    {profileSaving ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <span className="spinner" />
-                        جارٍ الحفظ...
-                      </span>
-                    ) : "💾 حفظ / שמור"}
+                  <button onClick={saveProfile} disabled={profileSaving} className="btn-neon w-full py-3 rounded-xl text-white font-semibold disabled:opacity-50">
+                    {profileSaving ? <span className="flex items-center justify-center gap-2"><span className="spinner" />{t.saving}</span> : t.save}
                   </button>
                 </div>
               </div>
-
-              {/* تقويم التوفر */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl neon-border bg-purple-500/10 flex items-center justify-center text-xl">
-                    📅
-                  </div>
+                  <div className="w-10 h-10 rounded-xl neon-border bg-purple-500/10 flex items-center justify-center text-xl">📅</div>
                   <div>
-                    <h2 className="font-bold text-lg text-foreground">جدول التوفر</h2>
-                    <p className="text-xs text-muted-foreground">לוח זמינות — انقر على يوم للتغيير / לחץ ליום לשינוי</p>
+                    <h2 className="font-bold text-lg text-foreground">{t.availabilityCalendar}</h2>
+                    <p className="text-xs text-muted-foreground">{t.calendarInstructions}</p>
                   </div>
                 </div>
-                <Calendar
-                  availabilityMap={availabilityMap}
-                  onDayClick={handleDayClick}
-                  loading={calLoading}
-                />
-                {calLoading && (
-                  <div className="flex justify-center py-2">
-                    <span className="spinner" />
-                  </div>
-                )}
+                <Calendar availabilityMap={availabilityMap} onDayClick={handleDayClick} loading={calLoading} lang={lang} />
+                {calLoading && <div className="flex justify-center py-2"><span className="spinner" /></div>}
                 <div className="glass rounded-xl p-4 text-xs text-muted-foreground space-y-1">
-                  <p className="font-semibold text-foreground">طريقة الاستخدام / איך להשתמש:</p>
-                  <p>⬜ فارغ → 🟢 متاح → 🔴 محجوز → ⬜ حذف</p>
-                  <p className="text-[10px] opacity-70">ריק ← מחוק ← תפוס ← זמין ← ריק</p>
+                  <p className="font-semibold text-foreground">{t.howToUse}</p>
+                  <p>{t.clickCycle}</p>
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* لوحة التحكم بدون تسجيل دخول */}
         {view === "dashboard" && !user && (
           <div className="flex justify-center items-center min-h-[60vh]">
             <div className="text-center space-y-4 animate-slide-up">
               <div className="text-6xl animate-pulse-glow">🔐</div>
-              <p className="text-muted-foreground">يجب تسجيل الدخول أولاً / יש להתחבר קודם</p>
-              <button
-                onClick={() => setView("login")}
-                className="btn-neon px-6 py-3 rounded-xl text-white font-semibold"
-              >
-                دخول / כניסה →
-              </button>
+              <p className="text-muted-foreground">{t.loginFirst}</p>
+              <button onClick={() => setView("login")} className="btn-neon px-6 py-3 rounded-xl text-white font-semibold">{t.login} →</button>
             </div>
           </div>
         )}
       </main>
 
-      {/* فوتر */}
       <footer className="mt-16 border-t border-border/30 py-8 text-center">
-        <p className="text-muted-foreground/50 text-sm">
-          سوا پارتي — معاً نصنع الحفلات / ביחד עושים מסיבות
-        </p>
+        <p className="text-muted-foreground/50 text-sm">{t.appName} — {t.footer}</p>
       </footer>
     </div>
   );
