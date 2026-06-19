@@ -18,7 +18,7 @@ type Lang = "ar" | "he";
 
 const TR = {
   ar: {
-    appName: "سوا پارتي",
+    appName: "حفلة",
     tagline: "ابحث عن ديجي أو مكان متاح في يومك المفضل",
     search: "بحث",
     dashboard: "لوحة التحكم",
@@ -90,7 +90,7 @@ const TR = {
     legendEmpty: "فارغ",
     onlineIndicator: "متاح",
     // Onboarding
-    onboardingTitle: "أهلاً بك في سوا پارتي!",
+    onboardingTitle: "أهلاً بك في حفلة!",
     onboardingSubtitle: "أخبرنا عن بزنسك",
     onboardingTypeQ: "إيش نوع بزنسك؟",
     onboardingDj: "ديجي 🎧",
@@ -107,7 +107,7 @@ const TR = {
     changePhoto: "تغيير الصورة",
   },
   he: {
-    appName: "סוא פארטי",
+    appName: "Hafla",
     tagline: "מצא דיג׳יי או מקום פנוי לאירוע שלך",
     search: "חיפוש",
     dashboard: "לוח בקרה",
@@ -654,7 +654,7 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center px-4" dir="rtl">
         <div className="glass-strong rounded-3xl p-10 w-full max-w-lg text-center space-y-6 neon-border animate-slide-up">
           <div className="text-6xl animate-pulse-glow">⚙️</div>
-          <h1 className="text-3xl font-black neon-text-indigo">سوا پارتي</h1>
+          <h1 className="text-3xl font-black neon-text-indigo">حفلة</h1>
           <div className="glass rounded-2xl p-6 text-right space-y-4">
             <p className="text-sm font-bold text-foreground">{t.setupDesc}</p>
             <div className="space-y-2 font-mono text-xs" dir="ltr">
