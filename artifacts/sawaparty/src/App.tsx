@@ -379,7 +379,11 @@ function VendorCardLarge({ vendor, lang }: { vendor: SearchResult; lang: Lang })
         </div>
       </div>
       {vendor.phone && <div className="flex items-center gap-2 text-sm text-muted-foreground"><span>📞</span><span dir="ltr">{vendor.phone}</span></div>}
-      {vendor.instagram && <div className="flex items-center gap-2 text-sm text-muted-foreground"><span>📸</span><span dir="ltr">@{vendor.instagram?.replace("@", "")}</span></div>}
+      {vendor.instagram && (
+        <a href={igLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-emerald-700 hover:text-emerald-900 hover:underline transition-colors w-fit">
+          <span>📸</span><span dir="ltr">@{vendor.instagram?.replace("@", "")}</span>
+        </a>
+      )}
       <div className="flex gap-3">
         {vendor.phone && (
           <a href={waLink} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all bg-green-100 border border-green-300 text-green-700 hover:bg-green-200">
@@ -948,7 +952,20 @@ export default function App() {
                     <input type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="input-dark" placeholder="+972..." dir="ltr" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-muted-foreground">{t.instagramLabel}</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-muted-foreground">{t.instagramLabel}</label>
+                      {editInstagram && (
+                        <a
+                          href={`https://instagram.com/${editInstagram.replace("@", "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-emerald-600 hover:text-emerald-800 hover:underline flex items-center gap-1"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                          {lang === "ar" ? "فتح" : "פתח"}
+                        </a>
+                      )}
+                    </div>
                     <input type="text" value={editInstagram} onChange={(e) => setEditInstagram(e.target.value)} className="input-dark" placeholder="@username" dir="ltr" />
                   </div>
                   <button onClick={saveProfile} disabled={profileSaving} className="btn-neon w-full py-3 rounded-xl text-white font-bold disabled:opacity-50">
