@@ -1,6 +1,6 @@
 import express, { type Express } from "express";
 import cors from "cors";
-import { pinoHttp } from "pino-http";
+import { pinoHttp } from "pino-http"; // ✅ الحل 1: استدعاء الدالة مباشرة بالأقواس المزخرفة لتجنب خطأ الـ Call Signature
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -10,14 +10,14 @@ app.use(
   pinoHttp({
     logger,
     serializers: {
-      req(req) {
+      req(req: any) { // ✅ الحل 2: تحديد نوع الـ req بـ any لحل مشكلة الـ TS7006
         return {
           id: req.id,
           method: req.method,
           url: req.url?.split("?")[0],
         };
       },
-      res(res) {
+      res(res: any) { // ✅ الحل 3: تحديد نوع الـ res بـ any لحل مشكلة الـ TS7006
         return {
           statusCode: res.statusCode,
         };
